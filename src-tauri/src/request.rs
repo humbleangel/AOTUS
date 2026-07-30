@@ -44,7 +44,7 @@ pub struct ToolDef {
 
 pub fn build_request(
     input: &BuildRequestInput,
-    model_config: &ModelConfig,
+    _model_config: &ModelConfig,
     adapter: &dyn ProviderAdapter,
 ) -> Result<serde_json::Value, crate::ChatError> {
     let params = ChatParams {
@@ -55,7 +55,7 @@ pub fn build_request(
         stream: input.stream,
     };
 
-    let mut body = adapter.build_body(&params, model_config);
+    let mut body = adapter.build_body(&params);
 
     if !input.tool_defs.is_empty() {
         let tools: Vec<serde_json::Value> = input.tool_defs.iter().map(|t| {
@@ -69,14 +69,6 @@ pub fn build_request(
             })
         }).collect();
         body["tools"] = serde_json::Value::Array(tools);
-    }
-
-    if let Some(extra) = &model_config.body_extra {
-        if let Some(obj) = extra.as_object() {
-            for (k, v) in obj {
-                body[k] = v.clone();
-            }
-        }
     }
 
     Ok(body)
@@ -122,10 +114,10 @@ mod tests {
         fn provider(&self) -> crate::provider::Provider {
             crate::provider::Provider::Nvidia
         }
-        fn endpoint(&self, _model: &ModelConfig) -> String {
+        fn endpoint(&self, _model: &str) -> String {
             "https://test.api.com/v1/chat".into()
         }
-        fn build_body(&self, params: &ChatParams, _model: &ModelConfig) -> serde_json::Value {
+        fn build_body(&self, params: &ChatParams) -> serde_json::Value {
             serde_json::json!({
                 "model": params.model,
                 "messages": params.messages,
@@ -181,20 +173,6 @@ mod tests {
         let body = build_request(&input, &make_model(), &adapter).unwrap();
         assert!(body["tools"].is_array());
         assert_eq!(body["tools"][0]["function"]["name"], "get_weather");
-    }
-
-    #[test]
-    fn test_build_request_with_body_extra() {
-        let adapter = MockAdapter;
-        let mut model = make_model();
-        model.body_extra = Some(serde_json::json!({"stop": ["END"]}));
-        let input = BuildRequestInput {
-            model: "test".into(), messages: vec![],
-            temperature: 0.7, max_tokens: 4096, stream: false,
-            tool_defs: vec![],
-        };
-        let body = build_request(&input, &model, &adapter).unwrap();
-        assert_eq!(body["stop"], serde_json::json!(["END"]));
     }
 
     #[test]

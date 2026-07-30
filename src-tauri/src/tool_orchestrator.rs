@@ -80,25 +80,34 @@ impl CycleDetector {
 }
 
 pub struct ToolOrchestrator {
-    registry: ToolRegistry,
     cycle_detector: std::sync::Mutex<CycleDetector>,
+    rounds: std::sync::atomic::AtomicU32,
 }
 
 impl ToolOrchestrator {
-    pub fn new(registry: ToolRegistry) -> Self {
-        Self { registry, cycle_detector: std::sync::Mutex::new(CycleDetector::new(3)) }
+    pub fn new() -> Self {
+        Self {
+            cycle_detector: std::sync::Mutex::new(CycleDetector::new(3)),
+            rounds: std::sync::atomic::AtomicU32::new(0),
+        }
     }
 
-    pub fn registry(&self) -> &ToolRegistry {
-        &self.registry
+    pub fn reset_rounds(&self) {
+        self.rounds.store(0, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub async fn run_cycle(
         &self,
         bundle: &mut crate::request::RequestBundle,
+        registry: &ToolRegistry,
         tool_calls: &[ToolCallDelta],
         on_event: Option<&tokio::sync::mpsc::Sender<crate::chat_engine::ChatEvent>>,
     ) -> CycleResult {
+        let round = self.rounds.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        if round >= 5 {
+            return CycleResult::MaxTurnsReached;
+        }
+
         let mut results = vec![];
         for tc in tool_calls {
             let name = match tc.function.as_ref().and_then(|f| f.name.as_deref()) {
@@ -123,7 +132,7 @@ impl ToolOrchestrator {
                 Err(_) => return CycleResult::Done,
             };
 
-            let tool = match self.registry.get(name) {
+            let tool = match registry.get(name) {
                 Some(t) => t,
                 None => return CycleResult::Done,
             };
@@ -250,7 +259,7 @@ mod tests {
     async fn test_orchestrator_run_cycle() {
         let registry = ToolRegistry::new();
         registry.register(Arc::new(EchoTool));
-        let orch = ToolOrchestrator::new(registry);
+        let orch = ToolOrchestrator::new();
 
         let mut bundle = crate::request::RequestBundle::new(
             crate::config::ModelConfig {
@@ -269,7 +278,7 @@ mod tests {
             }),
         }];
 
-        let cycle = orch.run_cycle(&mut bundle, &calls, None).await;
+        let cycle = orch.run_cycle(&mut bundle, &registry, &calls, None).await;
         assert!(matches!(cycle, CycleResult::Continue));
         assert_eq!(bundle.messages.len(), 1);
         assert_eq!(bundle.messages[0].role, "tool");

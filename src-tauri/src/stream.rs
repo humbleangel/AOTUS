@@ -52,19 +52,6 @@ impl SseParser {
     }
 }
 
-pub fn parse_sse_line(line: &str) -> Result<Option<String>, crate::ChatError> {
-    let trimmed = line.trim();
-    if trimmed.is_empty() { return Ok(None) }
-    if let Some(data) = trimmed.strip_prefix("data: ") {
-        if data == "[DONE]" { return Ok(None) }
-        Ok(Some(data.to_string()))
-    } else if trimmed.starts_with(':') {
-        Ok(None)
-    } else {
-        Ok(None)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -129,27 +116,5 @@ mod tests {
         assert!(matches!(e2, SseEvent::Data(_)));
     }
 
-    #[test]
-    fn test_parse_sse_line_basic() {
-        let result = parse_sse_line("data: hello").unwrap();
-        assert_eq!(result, Some("hello".to_string()));
-    }
 
-    #[test]
-    fn test_parse_sse_line_done_returns_none() {
-        let result = parse_sse_line("data: [DONE]").unwrap();
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_parse_sse_line_empty_returns_none() {
-        let result = parse_sse_line("").unwrap();
-        assert!(result.is_none());
-    }
-
-    #[test]
-    fn test_parse_sse_line_comment_returns_none() {
-        let result = parse_sse_line(": comment").unwrap();
-        assert!(result.is_none());
-    }
 }

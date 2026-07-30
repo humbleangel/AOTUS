@@ -1,5 +1,19 @@
 use crate::provider::{Answer, ToolCallDelta, Usage};
 
+fn extract_tool_calls(arr: &[serde_json::Value]) -> Vec<ToolCallDelta> {
+    arr.iter().map(|tc| {
+        let f = tc.get("function");
+        ToolCallDelta {
+            id: tc["id"].as_str().map(String::from),
+            call_type: tc["type"].as_str().map(String::from),
+            function: f.map(|f| crate::provider::ToolCallFunc {
+                name: f["name"].as_str().map(String::from),
+                arguments: f["arguments"].as_str().map(String::from),
+            }),
+        }
+    }).collect()
+}
+
 pub fn parse_batch_response(body: &serde_json::Value) -> Result<Answer, crate::ChatError> {
     let choices = body["choices"]
         .as_array()
@@ -27,19 +41,7 @@ pub fn parse_batch_response(body: &serde_json::Value) -> Result<Answer, crate::C
 
     let tool_calls: Vec<ToolCallDelta> = msg.get("tool_calls")
         .and_then(|tc| tc.as_array())
-        .map(|arr| {
-            arr.iter().map(|tc| {
-                let f = tc.get("function");
-                ToolCallDelta {
-                    id: tc["id"].as_str().map(String::from),
-                    call_type: tc["type"].as_str().map(String::from),
-                    function: f.map(|f| crate::provider::ToolCallFunc {
-                        name: f["name"].as_str().map(String::from),
-                        arguments: f["arguments"].as_str().map(String::from),
-                    }),
-                }
-            }).collect()
-        })
+        .map(|arr| extract_tool_calls(arr))
         .unwrap_or_default();
 
     Ok(Answer { content, model, usage, reasoning_content: reasoning, tool_calls })
@@ -70,19 +72,7 @@ pub fn parse_stream_delta(body: &serde_json::Value) -> Result<Answer, crate::Cha
 
     let tool_calls: Vec<ToolCallDelta> = delta.get("tool_calls")
         .and_then(|tc| tc.as_array())
-        .map(|arr| {
-            arr.iter().map(|tc| {
-                let f = tc.get("function");
-                ToolCallDelta {
-                    id: tc["id"].as_str().map(String::from),
-                    call_type: tc["type"].as_str().map(String::from),
-                    function: f.map(|f| crate::provider::ToolCallFunc {
-                        name: f["name"].as_str().map(String::from),
-                        arguments: f["arguments"].as_str().map(String::from),
-                    }),
-                }
-            }).collect()
-        })
+        .map(|arr| extract_tool_calls(arr))
         .unwrap_or_default();
 
     Ok(Answer { content, model, usage: None, reasoning_content: reasoning, tool_calls })

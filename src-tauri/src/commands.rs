@@ -1,5 +1,25 @@
 use crate::*;
 
+fn load_history_as_messages<'a>(
+    db: &'a dyn db::MessageDb,
+    session_id: &'a str,
+) -> std::pin::Pin<Box<dyn std::future::Future<Output = Vec<provider::ChatMessage>> + Send + 'a>> {
+    let session_id = session_id.to_string();
+    Box::pin(async move {
+        db.get_messages(&session_id)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|msg| provider::ChatMessage {
+                role: msg.role,
+                content: msg.content,
+                tool_calls: None,
+                tool_call_id: None,
+            })
+            .collect()
+    })
+}
+
 #[tauri::command]
 pub async fn chat_stream(
     state: tauri::State<'_, AppState>,
@@ -19,14 +39,7 @@ pub async fn chat_stream(
     let timeout = state.config.stream_timeout_secs;
 
     let mut bundle = request::RequestBundle::new(model_config.clone());
-    if let Ok(history) = state.db.get_messages(&session_id) {
-        for msg in &history {
-            bundle.messages.push(provider::ChatMessage {
-                role: msg.role.clone(), content: msg.content.clone(),
-                tool_calls: None, tool_call_id: None,
-            });
-        }
-    }
+    bundle.messages = load_history_as_messages(&*state.db, &session_id).await;
     bundle.push_user(&message);
 
     let request_id = uuid::Uuid::new_v4().to_string();
@@ -43,14 +56,12 @@ pub async fn chat_stream(
 
     let _engine = tokio::spawn(async move {
         let mut bundle = bundle;
-        let orchestrator = tool_orchestrator::ToolOrchestrator::new(
-            tool_orchestrator::ToolRegistry::new()
-        );
+        let registry = tool_orchestrator::ToolRegistry::new();
+        let orchestrator = tool_orchestrator::ToolOrchestrator::new();
         let client = reqwest::Client::new();
-        let mut rounds = 0;
 
         loop {
-            bundle.tool_defs = orchestrator.registry().tool_defs();
+            bundle.tool_defs = registry.tool_defs();
             let input = request::BuildRequestInput {
                 model: bundle.model_config.name.clone(),
                 messages: bundle.messages.clone(),
@@ -68,7 +79,7 @@ pub async fn chat_stream(
                     return;
                 }
             };
-            let url = adapter.endpoint(&bundle.model_config);
+            let url = adapter.endpoint(&bundle.model_config.name);
 
             let response = match client
                 .post(&url)
@@ -88,7 +99,8 @@ pub async fn chat_stream(
             };
 
             let result = chat_engine::run_stream(
-                response, event_tx.clone(), cancel_token.clone(), timeout,
+                response, event_tx.clone(), cancel_token.clone(),
+                &orchestrator, &mut bundle, timeout,
             ).await;
 
             let stream_result = match result {
@@ -110,16 +122,6 @@ pub async fn chat_stream(
                 return;
             }
 
-            if rounds >= 5 {
-                let _ = event_tx.send(chat_engine::ChatEvent::Done {
-                    answer: stream_result.answer.content.clone(),
-                    duration_ms: stream_result.duration_ms,
-                    ttft_ms: stream_result.ttft_ms,
-                }).await;
-                return;
-            }
-            rounds += 1;
-
             let tool_calls = stream_result.answer.tool_calls.clone();
             let _ = event_tx.send(chat_engine::ChatEvent::ToolCalls {
                 calls: tool_calls.clone(),
@@ -128,9 +130,9 @@ pub async fn chat_stream(
             bundle.push_assistant(&stream_result.answer.content, tool_calls.clone());
 
             let cycle = orchestrator.run_cycle(
-                &mut bundle, &tool_calls, Some(&event_tx),
+                &mut bundle, &registry, &tool_calls, Some(&event_tx),
             ).await;
-            bundle.tool_defs = orchestrator.registry().tool_defs();
+            bundle.tool_defs = registry.tool_defs();
 
             match cycle {
                 tool_orchestrator::CycleResult::Continue => {},
@@ -164,15 +166,7 @@ pub async fn chat_batch(
         .ok_or_else(|| ChatError::Auth(format!("no key for provider: {}", model_config.provider)))?
         .clone();
 
-    let mut messages = vec![];
-    if let Ok(history) = state.db.get_messages(&session_id) {
-        for msg in &history {
-            messages.push(provider::ChatMessage {
-                role: msg.role.clone(), content: msg.content.clone(),
-                tool_calls: None, tool_call_id: None,
-            });
-        }
-    }
+    let mut messages: Vec<provider::ChatMessage> = load_history_as_messages(&*state.db, &session_id).await;
     messages.push(request::build_user_message(&message));
 
     let input = request::BuildRequestInput {
@@ -184,7 +178,7 @@ pub async fn chat_batch(
         tool_defs: vec![],
     };
     let body = request::build_request(&input, &model_config, adapter.as_ref())?;
-    let url = adapter.endpoint(&model_config);
+    let url = adapter.endpoint(&model_name);
 
     let client = reqwest::Client::new();
     let response = client
@@ -218,31 +212,31 @@ pub fn cancel_request(
 }
 
 #[tauri::command]
-pub fn get_sessions(
+pub async fn get_sessions(
     state: tauri::State<'_, AppState>,
 ) -> Result<Vec<db::SessionRow>, ChatError> {
-    state.db.get_sessions()
+    state.db.get_sessions().await
 }
 
 #[tauri::command]
-pub fn create_session(
+pub async fn create_session(
     state: tauri::State<'_, AppState>,
     name: String,
 ) -> Result<db::SessionRow, ChatError> {
     let id = uuid::Uuid::new_v4().to_string();
-    state.db.as_ref().create_session(&id, &name)
+    state.db.as_ref().create_session(&id, &name).await
 }
 
 #[tauri::command]
-pub fn delete_session(
+pub async fn delete_session(
     state: tauri::State<'_, AppState>,
     id: String,
 ) -> Result<(), ChatError> {
-    state.db.as_ref().delete_session(&id)
+    state.db.as_ref().delete_session(&id).await
 }
 
 #[tauri::command]
-pub fn save_message(
+pub async fn save_message(
     state: tauri::State<'_, AppState>,
     session_id: String,
     role: String,
@@ -250,19 +244,14 @@ pub fn save_message(
     model: Option<String>,
 ) -> Result<db::MessageRow, ChatError> {
     state.db.insert_message(db::NewMessage {
-        session_id, role, content, model, tool_calls: None,
-    })
+        session_id, role, content, model,
+    }).await
 }
 
 #[tauri::command]
-pub fn get_models(state: tauri::State<'_, AppState>) -> Result<Vec<crate::config::ModelConfig>, ChatError> {
-    Ok(state.config.models.clone())
-}
-
-#[tauri::command]
-pub fn get_messages(
+pub async fn get_messages(
     state: tauri::State<'_, AppState>,
     session_id: String,
 ) -> Result<Vec<db::MessageRow>, ChatError> {
-    state.db.get_messages(&session_id)
+    state.db.get_messages(&session_id).await
 }

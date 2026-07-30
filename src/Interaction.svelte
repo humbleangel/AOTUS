@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Interaction as InteractionType } from '$lib/types'
+  import Connection from './Connection.svelte'
 
   let { interaction }: { interaction: InteractionType } = $props()
 
@@ -26,10 +27,7 @@
       {#if showToolResults}
         <div class="tool-calls">
           {#each interaction.toolCalls as tc}
-            <div class="tool-call">
-              <span class="tool-name">{tc.function?.name ?? 'tool'}</span>
-              <code class="tool-args">{tc.function?.arguments ?? ''}</code>
-            </div>
+            <Connection toolCall={tc} />
           {/each}
         </div>
       {/if}
@@ -91,14 +89,6 @@
   }
   .toggle-btn:hover { background: #1a1f26; }
   .tool-calls { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-  .tool-call {
-    background: #0a0e14;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-  }
-  .tool-name { color: #5eeaaf; font-weight: 500; }
-  .tool-args { color: #8892a8; display: block; margin-top: 2px; }
   .cursor {
     display: inline-block;
     width: 8px;

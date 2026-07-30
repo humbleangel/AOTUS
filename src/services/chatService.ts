@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { ChatEvent, Session, ChatParams } from '../lib/types'
+import type { ChatEvent, ChatParams } from '../lib/types'
 
 export async function sendStream(
   runtime: import('../lib/interactionRuntime').InteractionRuntime,
@@ -26,43 +26,14 @@ export async function sendBatch(
     sessionId: params.sessionId,
     modelName: params.modelName,
   })
-  const id = runtime.start(params.sessionId, params.message, params.modelName)
+  const id = await runtime.start(params.sessionId, params.message, params.modelName)
   const interaction = runtime.interactions.find((i: { id: string }) => i.id === id)
   if (interaction) {
     interaction.answer = answer.content
   }
-  runtime.setDone(id)
+  await runtime.setDone(id, params.sessionId, params.modelName)
 }
 
 export async function cancel(requestId: string): Promise<void> {
   return invoke('cancel_request', { requestId })
-}
-
-export async function getSessions(): Promise<Session[]> {
-  return invoke('get_sessions')
-}
-
-export async function createSession(name: string): Promise<Session> {
-  return invoke('create_session', { name })
-}
-
-export async function deleteSession(id: string): Promise<void> {
-  return invoke('delete_session', { id })
-}
-
-export async function getMessages(sessionId: string): Promise<import('../lib/types').Message[]> {
-  return invoke('get_messages', { sessionId })
-}
-
-export async function saveMessage(
-  sessionId: string,
-  role: string,
-  content: string,
-  model?: string,
-): Promise<void> {
-  return invoke('save_message', { sessionId, role, content, model })
-}
-
-export async function getModels(): Promise<import('../lib/types').ModelInfo[]> {
-  return invoke('get_models')
 }

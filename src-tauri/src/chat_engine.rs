@@ -1,4 +1,4 @@
-use crate::provider::{Answer, ToolCallDelta};
+use crate::provider::{Answer, ToolCallDelta, Usage};
 use crate::stream::SseParser;
 use serde::Serialize;
 use tokio::sync::mpsc;
@@ -20,10 +20,40 @@ pub struct StreamResult {
     pub duration_ms: u64,
 }
 
+fn finish_stream(
+    event_tx: &mpsc::Sender<ChatEvent>,
+    full_content: &str,
+    full_reasoning: &str,
+    full_tool_calls: Vec<ToolCallDelta>,
+    model_name: &str,
+    usage: Option<Usage>,
+    start: std::time::Instant,
+) -> StreamResult {
+    let duration_ms = start.elapsed().as_millis() as u64;
+    let _ = event_tx.try_send(ChatEvent::Done {
+        answer: full_content.to_string(),
+        duration_ms,
+        ttft_ms: duration_ms,
+    });
+    StreamResult {
+        answer: Answer {
+            content: full_content.to_string(),
+            model: model_name.to_string(),
+            usage,
+            reasoning_content: full_reasoning.to_string(),
+            tool_calls: full_tool_calls,
+        },
+        ttft_ms: duration_ms,
+        duration_ms,
+    }
+}
+
 pub async fn run_stream(
     response: reqwest::Response,
     event_tx: mpsc::Sender<ChatEvent>,
     cancel: CancellationToken,
+    _orchestrator: &crate::tool_orchestrator::ToolOrchestrator,
+    _bundle: &mut crate::request::RequestBundle,
     timeout_secs: u64,
 ) -> Result<StreamResult, crate::ChatError> {
 
@@ -104,47 +134,18 @@ pub async fn run_stream(
                                             }
                                             if let Some(finish) = value["choices"][0]["finish_reason"].as_str() {
                                                 if !finish.is_empty() && finish != "null" {
-                                                    let duration = start.elapsed().as_millis() as u64;
-                                                    let ttft = ttft_ms.unwrap_or(duration);
-                                                    event_tx.send(ChatEvent::Done {
-                                                        answer: full_content.clone(),
-                                                        duration_ms: duration,
-                                                        ttft_ms: ttft,
-                                                    }).await.ok();
-                                                    let duration_ms = start.elapsed().as_millis() as u64;
-                                                    return Ok(StreamResult {
-                                                        answer: Answer {
-                                                            content: full_content,
-                                                            model: model_name,
-                                                            usage,
-                                                            reasoning_content: full_reasoning,
-                                                            tool_calls: full_tool_calls,
-                                                        },
-                                                        ttft_ms: ttft,
-                                                        duration_ms,
-                                                    });
+                                                    return Ok(finish_stream(
+                                                        &event_tx, &full_content, &full_reasoning,
+                                                        full_tool_calls, &model_name, usage, start,
+                                                    ));
                                                 }
                                             }
                                         }
                                         crate::stream::SseEvent::Done => {
-                                            let duration = start.elapsed().as_millis() as u64;
-                                            let ttft = ttft_ms.unwrap_or(duration);
-                                            event_tx.send(ChatEvent::Done {
-                                                answer: full_content.clone(),
-                                                duration_ms: duration,
-                                                ttft_ms: ttft,
-                                            }).await.ok();
-                                            return Ok(StreamResult {
-                                                answer: Answer {
-                                                    content: full_content,
-                                                    model: model_name,
-                                                    usage,
-                                                    reasoning_content: full_reasoning,
-                                                    tool_calls: full_tool_calls,
-                                                },
-                                                ttft_ms: ttft,
-                                                duration_ms: duration,
-                                            });
+                                            return Ok(finish_stream(
+                                                &event_tx, &full_content, &full_reasoning,
+                                                full_tool_calls, &model_name, usage, start,
+                                            ));
                                         }
                                         _ => {}
                                     }
@@ -155,24 +156,10 @@ pub async fn run_stream(
                             return Err(crate::ChatError::Network(e.to_string()));
                         }
                         None => {
-                            let duration = start.elapsed().as_millis() as u64;
-                            let ttft = ttft_ms.unwrap_or(duration);
-                            event_tx.send(ChatEvent::Done {
-                                answer: full_content.clone(),
-                                duration_ms: duration,
-                                ttft_ms: ttft,
-                            }).await.ok();
-                            return Ok(StreamResult {
-                                answer: Answer {
-                                    content: full_content,
-                                    model: model_name,
-                                    usage,
-                                    reasoning_content: full_reasoning,
-                                    tool_calls: full_tool_calls,
-                                },
-                                ttft_ms: ttft,
-                                duration_ms: duration,
-                            });
+                            return Ok(finish_stream(
+                                &event_tx, &full_content, &full_reasoning,
+                                full_tool_calls, &model_name, usage, start,
+                            ));
                         }
                     }
                 }

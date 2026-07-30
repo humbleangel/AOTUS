@@ -65,14 +65,6 @@ export interface Answer {
   reasoning_content?: string
 }
 
-export interface ModelInfo {
-  name: string
-  provider: string
-  alias: string
-  temperature: number
-  max_tokens: number
-}
-
 export interface Session {
   id: string
   name: string

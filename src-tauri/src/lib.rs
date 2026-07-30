@@ -77,7 +77,7 @@ impl From<ChatError> for tauri::ipc::InvokeError {
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            chat_stream, chat_batch, cancel_request, save_message, get_models,
+            chat_stream, chat_batch, cancel_request, save_message,
             get_sessions, create_session, delete_session, get_messages,
         ])
         .setup(|app| {

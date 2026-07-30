@@ -21,7 +21,6 @@ pub fn get_migrations() -> Vec<Migration> {
                 role TEXT NOT NULL,
                 content TEXT NOT NULL,
                 model TEXT,
-                tool_calls TEXT,
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );",
         },

@@ -1,4 +1,5 @@
-import type { Interaction, InteractionStatus, Message, ToolCallDelta } from './types'
+import { invoke } from '@tauri-apps/api/core'
+import type { Interaction, InteractionStatus, Message, ToolCallDelta, ChatEvent, Session } from './types'
 
 let nextId = 1
 function genId(): string {
@@ -10,7 +11,7 @@ export class InteractionRuntime {
   activeId = $state<string | null>(null)
   error = $state<string | null>(null)
 
-  start(sessionId: string, prompt: string, model: string): string {
+  async start(sessionId: string, prompt: string, model: string): Promise<string> {
     const id = genId()
     const interaction: Interaction = {
       id,
@@ -56,20 +57,23 @@ export class InteractionRuntime {
     interaction.status = 'tool_executing'
   }
 
-  setDone(interactionId: string): void {
+  async setDone(interactionId: string, sessionId: string, model: string): Promise<void> {
     const interaction = this.interactions.find(i => i.id === interactionId)
     if (!interaction || interaction.status === 'error') return
     interaction.status = 'done'
+    await invoke('save_message', { sessionId, role: 'assistant', content: interaction.answer, model })
   }
 
-  setError(interactionId: string, message: string): void {
+  async setError(interactionId: string, message: string, sessionId: string, model: string): Promise<void> {
     const interaction = this.interactions.find(i => i.id === interactionId)
     if (!interaction) return
     interaction.status = 'error'
     this.error = message
+    await invoke('save_message', { sessionId, role: 'assistant', content: `Error: ${message}`, model })
   }
 
-  load(sessionId: string, messages: Message[]): void {
+  async load(sessionId: string): Promise<void> {
+    const messages: Message[] = await invoke('get_messages', { sessionId })
     const interactions: Interaction[] = []
     for (let i = 0; i < messages.length; i += 2) {
       const userMsg = messages[i]
@@ -89,5 +93,21 @@ export class InteractionRuntime {
       })
     }
     this.interactions = interactions
+  }
+
+  async getSessions(): Promise<Session[]> {
+    return invoke('get_sessions')
+  }
+
+  async createSession(name: string): Promise<Session> {
+    return invoke('create_session', { name })
+  }
+
+  async deleteSession(id: string): Promise<void> {
+    return invoke('delete_session', { id })
+  }
+
+  async saveUserMessage(sessionId: string, content: string, model: string): Promise<void> {
+    await invoke('save_message', { sessionId, role: 'user', content, model })
   }
 }
