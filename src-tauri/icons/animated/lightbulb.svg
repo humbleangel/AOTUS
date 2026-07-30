@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="6.542580413818359 9.793630409240723 34.91483154296875 28.412733459472655" enable-background="new 0 0 48 48">
+<g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M26.70186,37.75636H12.03204c-1.86536,0-3.37753-1.51217-3.37753-3.37753V13.87792c0-2.00716,1.62713-3.63429,3.63429-3.63429   h14.1563c2.00716,0,3.63429,1.62712,3.63429,3.63429v20.50092C30.07939,36.24419,28.56721,37.75636,26.70186,37.75636z"/>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M7.58654,32.89091h15.71137c0.32803,0,0.59395,0.26592,0.59395,0.59395v0.00001c0,2.35908,0.65762,4.27149,3.0167,4.27149H10.8056   c-2.10587,0-3.81302-1.70715-3.81302-3.81302v-0.45848C6.99259,33.15683,7.25851,32.89091,7.58654,32.89091z"/>
+</g>
+<g>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M36.10695,34.60128l-2.46675-2.20843c-0.35962-0.32196-0.90239-0.32676-1.26764-0.01123l-2.66133,2.29906   c-0.80584,0.69615-2.05688,0.12368-2.05688-0.94122V23.49722h10.52602v10.17739   C38.18037,34.7499,36.90808,35.31852,36.10695,34.60128z"/>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M24.82731,17.39819v5.00333c0,1.34226,0.71609,2.58256,1.87852,3.25369l4.33301,2.50167c1.16243,0.67113,2.59461,0.67113,3.75704,0   l4.33301-2.50167c1.16243-0.67113,1.87852-1.91143,1.87852-3.25369v-5.00333c0-1.34226-0.71609-2.58256-1.87852-3.25369   l-4.33301-2.50166c-1.16243-0.67113-2.59461-0.67113-3.75704,0l-4.33301,2.50166   C25.5434,14.81563,24.82731,16.05593,24.82731,17.39819z"/>
+	
+		<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="   29.67541,19.93868 31.81083,22.0741 36.15932,17.72561  "/>
+</g>
+<g>
+	
+		<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.17775" y1="17.34117" x2="16.20987" y2="17.34117"/>
+	
+		<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.17775" y1="22.19772" x2="19.36695" y2="22.19772"/>
+	
+		<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.17775" y1="27.47595" x2="19.36695" y2="27.47595"/>
+</g>
+</svg>

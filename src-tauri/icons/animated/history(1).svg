@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="17.50199966430664 17.50199966430664 30.12200012207031 29.080999755859374" enable-background="new 0 0 64 64">
+<g>
+	
+		<circle fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="23.25" cy="23.25" r="5.298"/>
+	
+		<rect x="35.255" y="35.5" fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="11.48" height="10.5"/>
+</g>
+<g>
+	<g>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="23.25" y1="35.5" x2="23.25" y2="46.133"/>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="28.5" y1="40.817" x2="18" y2="40.817"/>
+	</g>
+	
+		<polygon fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="   34.816,28.5 47.174,28.5 40.995,17.976  "/>
+</g>
+</svg>

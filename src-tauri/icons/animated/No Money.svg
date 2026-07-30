@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="6.525180625915527 10.798960494995118 34.94962921142578 26.402080917358397" enable-background="new 0 0 48 48">
+<g>
+	<g>
+		
+			<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M35.97554,36.75104H10.29798c-1.83513,0-3.3228-1.48767-3.3228-3.3228V21.69706c0-1.83513,1.48767-3.32279,3.3228-3.32279    h25.67756c1.83513,0,3.3228,1.48767,3.3228,3.32279v11.73118C39.29834,35.26337,37.81067,36.75104,35.97554,36.75104z"/>
+		<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M23.13676,22.30348h9.58471c0,1.06485,0.86323,1.92808,1.92808,1.92808v6.66218c-1.06485,0-1.92808,0.86323-1.92808,1.92808    H22.69176"/>
+		<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M22.38796,32.82182h-8.83591c0-1.06485-0.86323-1.92808-1.92808-1.92808v-6.66218c1.06485,0,1.92808-0.86323,1.92808-1.92808    h8.83591"/>
+		
+			<circle fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="23.13676" cy="27.56265" r="5.25917"/>
+	</g>
+	<g>
+		<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M21.86374,29.65615c0.25716,0.40871,0.73101,0.68283,1.27302,0.68283c0.81612,0,1.47772-0.6215,1.47772-1.38816    c0-0.76666-0.6616-1.38816-1.47772-1.38816c-0.81612,0-1.47771-0.6215-1.47771-1.38816c0-0.76666,0.6616-1.38816,1.47771-1.38816    c0.48147,0,0.90916,0.21631,1.17895,0.55112"/>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="23.13676" y1="30.9287" x2="23.13676" y2="30.33898"/>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="23.13676" y1="24.78632" x2="23.13676" y2="24.1966"/>
+	</g>
+</g>
+<g>
+	
+		<circle fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="34.43328" cy="17.84049" r="6.59153"/>
+	<g>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="32.46218" y1="19.74229" x2="36.40438" y2="15.8001"/>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="36.40438" y1="19.74229" x2="32.46218" y2="15.8001"/>
+	</g>
+</g>
+</svg>

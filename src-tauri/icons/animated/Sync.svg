@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="14.05 14.05 35.9 35.9" enable-background="new 0 0 64 64">
+<g>
+	<g>
+	</g>
+	
+		<circle fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="32" cy="32" r="17.5"/>
+</g>
+<g>
+	<g>
+		<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M36.039,21.863c4.025,1.605,6.87,5.539,6.87,10.137c0,6.025-4.884,10.909-10.909,10.909"/>
+		
+			<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    36.053,26.167 36.053,21.863 40.75,21.863   "/>
+	</g>
+	<g>
+		<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M27.278,41.837c-3.661-1.76-6.187-5.504-6.187-9.837c0-6.025,4.884-10.909,10.909-10.909"/>
+		
+			<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    27.275,37.534 27.275,41.837 22.578,41.837   "/>
+	</g>
+</g>
+</svg>

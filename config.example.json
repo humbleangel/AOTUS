@@ -1,0 +1,17 @@
+{
+  "models": [
+    {
+      "name": "nvidia/llama-3.1-8b-instruct",
+      "provider": "nvidia",
+      "alias": "Llama 3.1 8B",
+      "temperature": 0.7,
+      "max_tokens": 4096
+    }
+  ],
+  "api_keys": {
+    "nvidia": "nvapi-..."
+  },
+  "default_provider": "nvidia",
+  "default_model": "nvidia/llama-3.1-8b-instruct",
+  "stream_timeout_secs": 120
+}

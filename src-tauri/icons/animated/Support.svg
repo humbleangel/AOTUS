@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="17.52743797302246 14.34823112487793 28.944561386108397 35.30376281738281" enable-background="new 0 0 64 64">
+<g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M46.022,21.282v21.46c0,3.57-2.89,6.46-6.46,6.46h-15.08c-3.57,0-6.46-2.89-6.46-6.46v-18.35c0-0.73,0.26-1.43,0.75-1.98l5.8-6.58   c0.57-0.64,1.39-1.01,2.24-1.01h12.75C43.132,14.822,46.022,17.712,46.022,21.282z"/>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M27.292,14.822v7.49c0,1.49-1.21,2.7-2.7,2.7h-6.57c0,0-0.319-1.483,0.75-2.6l5.8-6.58C25.657,14.552,27.292,14.822,27.292,14.822z   "/>
+</g>
+<g>
+	<g>
+	</g>
+	<g>
+		<g>
+			
+				<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="29.112" y1="40.467" x2="36.112" y2="40.467"/>
+			
+				<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="     30.862,32.012 32.612,32.012 32.612,40.467    "/>
+		</g>
+	</g>
+	<g>
+		<path stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M31.954,28.55    c-0.26,0-0.52-0.11-0.7-0.3c-0.19-0.18-0.3-0.44-0.3-0.7c0-0.27,0.11-0.52,0.3-0.71c0.36-0.37,1.04-0.37,1.41,0    c0.19,0.19,0.29,0.44,0.29,0.71c0,0.26-0.1,0.52-0.29,0.7c-0.05,0.05-0.1,0.09-0.15,0.13c-0.06,0.03-0.12,0.07-0.18,0.09    c-0.06,0.03-0.12,0.05-0.18,0.06C32.084,28.54,32.024,28.55,31.954,28.55z"/>
+	</g>
+</g>
+</svg>

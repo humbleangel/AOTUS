@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOTUS — Architectural Specification v4</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #090b0d; color: #e2e8f0; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+  .card { background: #111418; border: 1px solid #1e2329; border-radius: 12px; }
+  .card-glow { box-shadow: 0 0 0 1px rgba(94, 234, 175, 0.06), 0 8px 32px -8px rgba(0,0,0,0.5); }
+  .card-hover { transition: all 0.25s ease; }
+  .card-hover:hover { border-color: #2a313a; transform: translateY(-1px); box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6); }
+  .text-muted { color: #8892a8; }
+  .text-accent { color: #7dd3fc; }
+  .text-green { color: #5eeaaf; }
+  .text-amber { color: #facc15; }
+  .text-red { color: #f87171; }
+  .border-accent { border-color: #2a3a4a; }
+  .bg-deep { background: #0f172a; }
+  .bg-card-alt { background: #0d1117; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; }
+  .badge-green { background: rgba(94, 234, 175, 0.12); color: #5eeaaf; }
+  .badge-blue { background: rgba(125, 211, 252, 0.12); color: #7dd3fc; }
+  .badge-amber { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+  .badge-red { background: rgba(248, 113, 113, 0.12); color: #f87171; }
+  .badge-gray { background: rgba(136, 146, 168, 0.12); color: #8892a8; }
+  .mermaid-card { background: #0d1117; border-radius: 10px; padding: 16px; border: 1px solid #1e2329; overflow-x: auto; }
+  .mermaid-card svg { max-width: 100%; height: auto; }
+  .section-link { scroll-margin-top: 80px; }
+  .gradient-text { background: linear-gradient(135deg, #5eeaaf 0%, #7dd3fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .gradient-border { position: relative; }
+  .gradient-border::before { content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1px; background: linear-gradient(135deg, rgba(94,234,175,0.3), rgba(125,211,252,0.3)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  .pulse { animation: pulse 3s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .fade-in { animation: fadeUp 0.5s ease-out both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .stagger > * { animation: fadeUp 0.4s ease-out both; }
+  .stagger > *:nth-child(1) { animation-delay: 0.00s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.05s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.10s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.15s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.20s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.25s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.30s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.35s; }
+  .stagger > *:nth-child(9) { animation-delay: 0.40s; }
+  .stagger > *:nth-child(10) { animation-delay: 0.45s; }
+  .rule { height: 1px; background: linear-gradient(90deg, transparent, #1e2329, transparent); margin: 2rem 0; }
+  .toc-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; text-decoration: none; color: inherit; }
+  .toc-item:hover { background: rgba(255,255,255,0.03); }
+  .toc-item.active { background: rgba(94,234,175,0.06); }
+  .toc-item.active .toc-num { background: rgba(94,234,175,0.25); }
+  .toc-num { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(94,234,175,0.1); color: #5eeaaf; flex-shrink: 0; transition: background 0.2s; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #090b0d; }
+  ::-webkit-scrollbar-thumb { background: #2a313a; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a4350; }
+  #back-to-top { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: #111418; border: 1px solid #1e2329; color: #5eeaaf; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 50; font-size: 18px; }
+  #back-to-top.visible { opacity: 1; pointer-events: auto; }
+  #back-to-top:hover { border-color: #5eeaaf; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(94,234,175,0.15); }
+  @media print { body { background: white; color: black; } .card { border: 1px solid #ddd; background: white; } #back-to-top { display: none; } .toc-item.active { background: none; } }
+  @media (min-width: 1280px) {
+    body { display: flex; }
+    .toc-sidebar { flex-shrink: 0; width: 200px; padding: 80px 12px 0 24px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .toc-sidebar .toc-item { font-size: 0.8rem; padding: 6px 10px; }
+    .toc-sidebar .toc-num { width: 20px; height: 20px; font-size: 10px; }
+    .page-content { flex: 1; min-width: 0; }
+  }
+  @media (max-width: 1279px) {
+    .toc-sidebar { display: none; }
+  }
+  .decision { background: #0a1628; border-left: 3px solid #5eeaaf; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+  .principle { background: #0f172a; border-left: 3px solid #7dd3fc; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="toc-sidebar stagger" id="toc-sidebar">
+  <a href="#s1" class="toc-item" data-section="s1"><span class="toc-num">1</span> Genesis</a>
+  <a href="#s2" class="toc-item" data-section="s2"><span class="toc-num">2</span> Philosophy</a>
+  <a href="#s3" class="toc-item" data-section="s3"><span class="toc-num">3</span> Module Map</a>
+  <a href="#s4" class="toc-item" data-section="s4"><span class="toc-num">4</span> Build Order</a>
+  <a href="#s5" class="toc-item" data-section="s5"><span class="toc-num">5</span> Data Flow</a>
+  <a href="#s6" class="toc-item" data-section="s6"><span class="toc-num">6</span> UX Flow</a>
+  <a href="#s7" class="toc-item" data-section="s7"><span class="toc-num">7</span> Module Spec</a>
+  <a href="#s8" class="toc-item" data-section="s8"><span class="toc-num">8</span> Appendix</a>
+</nav>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" style="flex: 1; min-width: 0;">
+
+  <button id="back-to-top" onclick="window.scrollTo({top:0})" aria-label="Back to top">&uarr;</button>
+
+  <!-- HERO -->
+  <div class="fade-in mb-12">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500 pulse"></span>
+      <span class="text-xs font-semibold uppercase tracking-[0.15em] text-muted">AOTUS &middot; Architectural Specification v4</span>
+    </div>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-4">
+      <span class="gradient-text">Ship the lazy version.</span><br>
+      <span class="text-white">Earn the complexity.</span>
+    </h1>
+    <p class="text-lg sm:text-xl text-muted max-w-3xl leading-relaxed">
+      AOTUS is the sister project to AOTU, built from zero with everything AOTU learned the hard way.
+      This spec synthesises research across 4 architectural patterns, 3 desktop models, file vs DB orchestration,
+      terminal process management, and AOTU's own v3 refactor plan.
+    </p>
+    <div class="flex flex-wrap gap-3 mt-5">
+      <span class="badge badge-green">4 providers from v1</span>
+      <span class="badge badge-blue">1 database</span>
+      <span class="badge badge-amber">0 memory system</span>
+      <span class="badge badge-gray">Engine + Config pattern</span>
+      <span class="badge badge-gray">Tools in v1</span>
+      <span class="badge badge-gray">Streaming agent loop</span>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="card card-glow p-5 sm:p-6 mb-10 fade-in">
+    <h2 class="text-sm font-semibold uppercase tracking-[0.12em] text-muted mb-4">Contents</h2>
+    <div class="grid sm:grid-cols-2 gap-1 text-sm">
+      <a href="#s1" class="toc-item" data-section="s1"><span class="toc-num">1</span> Genesis &mdash; What AOTU taught us</a>
+      <a href="#s5" class="toc-item" data-section="s5"><span class="toc-num">5</span> Data Flow &mdash; Ownership</a>
+      <a href="#s2" class="toc-item" data-section="s2"><span class="toc-num">2</span> Philosophy &amp; Principles</a>
+      <a href="#s6" class="toc-item" data-section="s6"><span class="toc-num">6</span> UX Flow &mdash; User's Journey</a>
+      <a href="#s3" class="toc-item" data-section="s3"><span class="toc-num">3</span> Module Map</a>
+      <a href="#s7" class="toc-item" data-section="s7"><span class="toc-num">7</span> Module-by-Module Spec</a>
+      <a href="#s4" class="toc-item" data-section="s4"><span class="toc-num">4</span> Build Order &mdash; 8 phases</a>
+      <a href="#s8" class="toc-item" data-section="s8"><span class="toc-num">8</span> Appendix &amp; Research Map</a>
+    </div>
+  </div>
+
+  <!-- SECTION 1: GENESIS -->
+  <section id="s1" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-900/30 text-green-500 font-bold text-sm">1</span>
+      <h2 class="text-2xl font-bold text-white">Genesis &mdash; What AOTU taught us</h2>
+    </div>
+    <div class="card card-hover p-5 sm:p-6 gradient-border">
+      <p class="text-sm text-muted leading-relaxed mb-4">
+        AOTU reached v0.0.8 with 53 known bug items, 3 databases, a dual-summary pipeline,
+        two tool-execution paths, and a frontend with competing stores. The v3 refactor plan fixed
+        most of this. AOTUS inherits those fixes at birth.
+      </p>
+      <div class="grid sm:grid-cols-3 gap-4 text-sm">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-2">Keep from AOTU v3</div>
+          <ul class="text-muted space-y-1">
+            <li>&bull; InteractionRuntime as single state owner</li>
+            <li>&bull; ChatService as stateless functions</li>
+            <li>&bull; ViewState per-component, no timers in UI</li>
+            <li>&bull; DB layer trait (SQLite + InMemory)</li>
+            <li>&bull; ChatRequestBuilder (single prologue)</li>
+            <li>&bull; Single tool-orchestrator loop</li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">Skip at birth</div>
+          <ul class="text-muted space-y-1">
+            <li>&bull; 3 databases &rarr; 1 SQLite DB</li>
+            <li>&bull; Vector memory (DB1/DB2) &rarr; add when needed</li>
+            <li>&bull; Enrichment pipeline &rarr; add when needed</li>
+            <li>&bull; Agent orchestration &rarr; borrowed pattern only</li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-2">Borrowed from research</div>
+          <ul class="text-muted space-y-1">
+            <li>&bull; Engine + Config (from Hermes) &rarr; fat Rust core, thin config</li>
+            <li>&bull; Streaming agent loop (from Odysseus)</li>
+            <li>&bull; File-based simplicity (FLOWORK V8 lesson)</li>
+            <li>&bull; Mindwalk's adapter interface pattern</li>
+            <li>&bull; Tauri in-process model (no sidecar)</li>
+            <li>&bull; Process groups for lifecycle (lesson 2)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: PHILOSOPHY -->
+  <section id="s2" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-900/30 text-blue-400 font-bold text-sm">2</span>
+      <h2 class="text-2xl font-bold text-white">Philosophy &amp; Principles</h2>
+    </div>
+
+    <div class="card p-5 mb-5">
+      <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-3">The motto</div>
+      <p class="text-lg font-bold text-white">Ship the lazy version. Earn the complexity.</p>
+      <p class="text-sm text-muted mt-1">
+        Start with one provider, one database, no memory system. Add each only when there's a measurable need.
+        AOTU's 53 bugs came from building ahead of need &mdash; dual tool paths, dual summaries, dual stores.
+        One owner. One path. One database.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mb-5">
+      <div class="principle">
+        <div class="text-xs font-semibold uppercase tracking-wider text-accent mb-1">P1. Engine + Config</div>
+        <p class="text-sm text-muted">
+          Deterministic Rust backend does all the work. Config files define pipeline shape, provider details,
+          model parameters. LLM only does what needs judgment. The engine is testable without the LLM.
+          <em class="text-blue-400">Source: Hermes / pattern 2</em>
+        </p>
+      </div>
+      <div class="principle">
+        <div class="text-xs font-semibold uppercase tracking-wider text-accent mb-1">P2. Streaming Agent Loop</div>
+        <p class="text-sm text-muted">
+          Single-user chat is a streaming loop: send prompt &rarr; stream tokens &rarr; optional tool calls &rarr;
+          loop until DONE. The LLM drives the conversation. Tool execution is inline, not async.
+          <em class="text-blue-400">Source: Odysseus / pattern 4</em>
+        </p>
+      </div>
+      <div class="principle">
+        <div class="text-xs font-semibold uppercase tracking-wider text-accent mb-1">P3. One Owner, One Path</div>
+        <p class="text-sm text-muted">
+          Every piece of data has exactly one owner at runtime (<code class="mono">InteractionRuntime</code>).
+          Every write path has exactly one code path. No mirror stores, no dual loops, no duplicate summaries.
+          <em class="text-blue-400">Source: AOTU v3</em>
+        </p>
+      </div>
+      <div class="principle">
+        <div class="text-xs font-semibold uppercase tracking-wider text-accent mb-1">P4. Adapt to grow</div>
+        <p class="text-sm text-muted">
+          The architecture supports growth without rewriting. New providers = new adapter. New data source =
+          new adapter. The Engine doesn't change. File-based state (FLOWORK V8) becomes DB-backed (V2)
+          only when measurable need appears.
+          <em class="text-blue-400">Source: mindwalk adapter + FLOWORK</em>
+        </p>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-1">ARCHITECTURE DECISIONS (locked)</div>
+      <table class="text-sm text-muted w-full">
+        <tr><td class="py-1 pr-4">Stack</td><td>Tauri v2 + Svelte 5 + Rust</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">Backend location</td><td>In-process Tauri commands (no sidecar)</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">State ownership</td><td>Single InteractionRuntime ($state) &rarr; stateless commands</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">Database</td><td>1 SQLite DB. No vector. No chat DB. No memory DB.</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">Providers</td><td>4 providers from v1 (NVIDIA, OpenRouter, Zen, GO). JSON config.</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">Tool system</td><td>IN v1. ToolOrchestrator with inline cycle loop.</td><td class="text-green-500 pl-4">locked</td></tr>
+        <tr><td class="py-1 pr-4">Memory system</td><td>NOT in v1. Add when needed.</td><td class="text-amber-500 pl-4">deferred</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 3: MODULE MAP -->
+  <section id="s3" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-900/30 text-amber-400 font-bold text-sm">3</span>
+      <h2 class="text-2xl font-bold text-white">Module Map</h2>
+    </div>
+
+    <div class="card card-hover p-5 sm:p-6 gradient-border mb-5">
+      <p class="text-sm text-muted mb-4">
+        Arrows point DOWN for dependencies. <code class="mono text-accent">InteractionRuntime</code> does NOT import
+        <code class="mono text-accent">ChatService</code>. Frontend is pure rendering &mdash; all logic is in the Runtime.
+        Backend is pure functions &mdash; no state, no global singletons.
+      </p>
+      <div class="mermaid-card">
+        <div class="mermaid">
+flowchart TB
+    subgraph FE["Frontend — Svelte 5"]
+        direction TB
+        IR["InteractionRuntime<br>src/lib/interactionRuntime<br>OWNER of all $state"]:::deep
+        VS["ViewState<br>per-component UI chrome (collapsed, open)"]:::view
+        UI["ChatMessages + ChatForm<br>pure rendering"]:::thin
+    end
+    subgraph IPC["Tauri IPC boundary"]
+        CS["ChatService (STATELESS)<br>src/services/chatService<br>sendStream, sendBatch, cancel"]:::thin
+    end
+    subgraph BE["Backend — Rust"]
+        direction TB
+        CMD["commands.rs<br>chat, chat_stream, cancel"]:::be
+        ENG["chat_engine.rs<br>SSE streaming + tool loop"]:::be
+        TOR["tool_orchestrator.rs<br>run_cycle, CycleDetector"]:::deep
+        PRV["provider.rs<br>ProviderAdapter trait + 4 impls"]:::deep
+        REQ["request.rs<br>Build HTTP JSON body"]:::deep
+        RES["response.rs<br>Parse HTTP response"]:::deep
+        DB["db/<br>MessageDb trait + SQLite"]:::deep
+        CFG["config.rs<br>AppConfig — loaded once"]:::deep
+        STR["stream.rs<br>ChatEvent, parse_sse_line"]:::thin
+    end
+    IR --> CS
+    UI --> IR
+    UI -.-> VS
+    CS --> CMD
+    CMD --> PRV
+    CMD --> REQ
+    CMD --> ENG
+    CMD --> DB
+    ENG --> STR
+    ENG --> RES
+    ENG --> TOR
+    TOR --> PRV
+    TOR --> REQ
+    REQ --> PRV
+    classDef deep fill:#0a1628,stroke:#10b981,stroke-width:2,color:#e2e8f0
+    classDef thin fill:#111418,stroke:#7dd3fc,stroke-width:1,color:#e2e8f0
+    classDef view fill:#111418,stroke:#facc15,stroke-width:1,color:#e2e8f0
+    classDef be fill:#0d1117,stroke:#475569,stroke-width:1,color:#e2e8f0
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 text-sm">
+      <div class="card p-4">
+        <div class="text-green-500 font-semibold text-xs uppercase mb-2">What's MISSING vs AOTU</div>
+        <ul class="text-muted space-y-1">
+            <li>&bull; <span class="text-green-500">INCLUDED</span> provider.rs — 4 providers via ProviderAdapter trait</li>
+            <li>&bull; <span class="text-green-500">INCLUDED</span> tool_orchestrator.rs — single tool cycle loop</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> embedding.rs — no vector memory yet</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> memory_db.rs, chat_db.rs, databases.rs — single DB</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> chat_store.rs — no enrichment pipeline</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> context_selector.rs — no smart context</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> builtins.rs, artifact_store.rs — no tool workspace</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> message_builder.rs — simpler prompt building</li>
+            <li>&bull; <span class="text-red-400">DELETED</span> reasoning.rs — inline in engine</li>
+        </ul>
+      </div>
+      <div class="card p-4">
+        <div class="text-blue-400 font-semibold text-xs uppercase mb-2">Module Boundaries</div>
+        <table class="text-muted w-full text-xs">
+          <tr><th class="text-left pr-2">Module</th><th class="text-left">Dependencies</th></tr>
+          <tr><td class="py-0.5"><code>config.rs</code></td><td>None</td></tr>
+          <tr><td class="py-0.5"><code>provider.rs</code></td><td>config</td></tr>
+          <tr><td class="py-0.5"><code>request.rs</code></td><td>provider, config</td></tr>
+          <tr><td class="py-0.5"><code>response.rs</code></td><td>None</td></tr>
+          <tr><td class="py-0.5"><code>stream.rs</code></td><td>None</td></tr>
+          <tr><td class="py-0.5"><code>tool_orchestrator.rs</code></td><td>provider, request</td></tr>
+          <tr><td class="py-0.5"><code>chat_engine.rs</code></td><td>stream, response, tool_orchestrator</td></tr>
+          <tr><td class="py-0.5"><code>db/message_db.rs</code></td><td>None</td></tr>
+          <tr><td class="py-0.5"><code>commands.rs</code></td><td>All above</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: BUILD ORDER -->
+  <section id="s4" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-900/30 text-green-500 font-bold text-sm">4</span>
+      <h2 class="text-2xl font-bold text-white">Build Order &mdash; 8 phases</h2>
+    </div>
+    <p class="text-sm text-muted mb-5">
+      Every phase produces a working app. No phase depends on the next. Stop any time.
+    </p>
+
+    <div class="space-y-3 stagger">
+
+      <div class="card p-4 border-l-4" style="border-left-color: #5eeaaf;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-green">PHASE 0</span>
+          <span class="text-lg font-bold text-white">Scaffold</span>
+          <span class="text-sm text-muted">Tauri + Svelte + config</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-3 text-sm text-muted">
+          <div><code>npm create tauri-app</code></div>
+          <div>Define <code>AppConfig</code> struct. Load from <code>config.toml</code>.</div>
+          <div>Single provider entry (NVIDIA). Single model.</div>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #7dd3fc;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-blue">PHASE 1</span>
+          <span class="text-lg font-bold text-white">Backend chat + providers</span>
+          <span class="text-sm text-muted">Engine + streaming + 4 providers</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3 text-sm text-muted">
+          <div>
+            <div class="text-green-500 text-xs font-semibold mb-1">Build</div>
+            <ul>
+              <li><code>config.rs</code> &mdash; load JSON config, models list</li>
+              <li><code>provider.rs</code> &mdash; ProviderAdapter trait + 4 impls</li>
+              <li><code>request.rs</code> &mdash; build HTTP body via adapter</li>
+              <li><code>response.rs</code> &mdash; parse JSON response via adapter</li>
+              <li><code>stream.rs</code> &mdash; SSE line parser + ChatEvent</li>
+              <li><code>chat_engine.rs</code> &mdash; <code>select!</code> loop, 120s timeout</li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-amber-400 text-xs font-semibold mb-1">Test</div>
+            <ul>
+              <li><code>cargo test</code> with fake HTTP client</li>
+              <li>Stream timeout test</li>
+              <li>SSE parse edge cases</li>
+              <li>All 4 provider adapter tests</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #facc15;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-amber">PHASE 2</span>
+          <span class="text-lg font-bold text-white">Database layer</span>
+          <span class="text-sm text-muted">Single SQLite DB</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3 text-sm text-muted">
+          <div>
+            <div class="text-green-500 text-xs font-semibold mb-1">Build</div>
+            <ul>
+              <li><code>MessageDb</code> trait: insert, update, get, delete</li>
+              <li><code>SQLiteMessageDb</code> with migrations</li>
+              <li><code>InMemoryMessageDb</code> (HashMap) for tests</li>
+              <li>Single <code>messages</code> table (flat, no joins)</li>
+              <li><code>sessions</code> table (id, name, created_at)</li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-amber-400 text-xs font-semibold mb-1">Schema</div>
+            <div class="bg-deep rounded p-2 text-xs font-mono border border-slate-800 overflow-x-auto">
+CREATE TABLE sessions (<br>
+&nbsp;&nbsp;id TEXT PRIMARY KEY,<br>
+&nbsp;&nbsp;name TEXT NOT NULL,<br>
+&nbsp;&nbsp;created_at TEXT NOT NULL<br>
+);<br><br>
+CREATE TABLE messages (<br>
+&nbsp;&nbsp;id INTEGER PRIMARY KEY,<br>
+&nbsp;&nbsp;session_id TEXT NOT NULL,<br>
+&nbsp;&nbsp;role TEXT NOT NULL,<br>
+&nbsp;&nbsp;content TEXT DEFAULT '',<br>
+&nbsp;&nbsp;model TEXT,<br>
+&nbsp;&nbsp;created_at TEXT NOT NULL,<br>
+&nbsp;&nbsp;FOREIGN KEY (session_id) REFERENCES sessions(id)<br>
+);
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #f87171;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-red">PHASE 3</span>
+          <span class="text-lg font-bold text-white">Tauri commands</span>
+          <span class="text-sm text-muted">Wire everything</span>
+        </div>
+        <div class="text-sm text-muted">
+          <p class="mb-1"><code>commands.rs</code> owns the Tauri wiring:</p>
+          <ul>
+            <li><code>chat_stream</code> &rarr; resolve provider &rarr; build request &rarr; run engine</li>
+            <li><code>chat_batch</code> &rarr; same but batch-mode</li>
+            <li><code>cancel_request</code> &rarr; drop CancellationToken</li>
+            <li><code>get_sessions</code> / <code>create_session</code> / <code>delete_session</code></li>
+            <li><code>get_messages</code> / <code>save_message</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #7dd3fc;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-blue">PHASE 4</span>
+          <span class="text-lg font-bold text-white">InteractionRuntime</span>
+          <span class="text-sm text-muted">Frontend state owner</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3 text-sm text-muted">
+          <div>
+            <ul>
+              <li><code>interactions</code> = single <code>$state</code> array</li>
+              <li><code>start()</code> &rarr; creates interaction, calls ChatService</li>
+              <li><code>appendToAnswer()</code> &rarr; streaming from Channel</li>
+              <li><code>setToolCalls()</code> &rarr; switches status to ToolExecuting</li>
+              <li><code>setDone()</code> &rarr; persist to DB</li>
+              <li><code>setError()</code> &rarr; persist error, no summary</li>
+              <li><code>loadInteractions()</code> &rarr; load from DB on init</li>
+            </ul>
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase text-amber-400 mb-1">NOT here</div>
+            <ul>
+              <li>&cross; No summary timer</li>
+              <li>&cross; No enrichment</li>
+              <li>&cross; No auto-collapse</li>
+              <li>Just chat + tools. That's it.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #5eeaaf;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-green">PHASE 5</span>
+          <span class="text-lg font-bold text-white">Chat UI</span>
+          <span class="text-sm text-muted">Svelte components</span>
+        </div>
+        <div class="text-sm text-muted">
+          <ul>
+            <li><code>App.svelte</code> &rarr; shell + view routing (chat only at first)</li>
+            <li><code>Sidebar.svelte</code> &rarr; session list + new/rename/delete</li>
+            <li><code>ChatMessages.svelte</code> &rarr; render interactions, auto-scroll</li>
+            <li><code>ChatForm.svelte</code> &rarr; input, send button, model selector</li>
+            <li><code>Interaction.svelte</code> &rarr; one chat bubble (render prompt + response)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #facc15;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-amber">PHASE 6</span>
+          <span class="text-lg font-bold text-white">Tool execution UI</span>
+          <span class="text-sm text-muted">Frontend tool display</span>
+        </div>
+        <div class="text-sm text-muted">
+          <p class="mb-1">When the interaction status enters <code>ToolExecuting</code>, the UI shows which tools are running, their status (running/done/error), and results. The user sees the tool cycle happen in real time.</p>
+          <ul>
+            <li>Connection.svelte — tool call cards inline in chat</li>
+            <li>Status indicator per tool (spinner, checkmark, error)</li>
+            <li>Results expandable on click</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card p-4 border-l-4" style="border-left-color: #f87171;">
+        <div class="flex items-center gap-3 mb-2">
+          <span class="badge badge-red">PHASE 7</span>
+          <span class="text-lg font-bold text-white">Add complexity on demand</span>
+          <span class="text-sm text-muted">Never before</span>
+        </div>
+        <div class="text-sm text-muted">
+          <p>Each feature is a phase that never ships until there's a measurable need. Order by actual user demand:</p>
+          <ol class="list-decimal list-inside text-muted mt-1">
+            <li>Session management (rename, search, reorder)</li>
+            <li>Conversation summary (llmlabel, 1 LLM call)</li>
+            <li>Memory / RAG (sqlite-vec, similarity search)</li>
+            <li>Tool workspace (read/write, sandboxed)</li>
+            <li>Multi-session memory (DB1 + DB2 delta)</li>
+            <li>Agent orchestration (mailbox + kanban)</li>
+            <li>Terminal agent streaming (PTY, grid model)</li>
+          </ol>
+          <p class="text-amber-500 mt-2"><strong>Stop at any point.</strong> Each phase adds zero complexity
+          to the previous phases because the Engine doesn't change &mdash; only adapters and config grow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: DATA FLOW -->
+  <section id="s5" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-900/30 text-blue-400 font-bold text-sm">5</span>
+      <h2 class="text-2xl font-bold text-white">Data Flow &mdash; Ownership &amp; Movement</h2>
+    </div>
+
+    <div class="card card-hover p-5 sm:p-6 gradient-border mb-5">
+      <div class="mermaid-card">
+        <div class="mermaid">
+flowchart TB
+    subgraph OWNED["OWNED BY InteractionRuntime"]
+        IA["Interaction[] — $state array"]:::deep2
+    end
+    subgraph DERIVED["DERIVED VIEWS"]
+        VS["ViewState — collapsedLevel, answerOpen"]:::view2
+    end
+    subgraph PERSISTED["PERSISTED BY DB Layer"]
+        SQL[("SQLite — messages + sessions")]:::persist
+    end
+    subgraph REMOTE["REMOTE"]
+        LLM["NVIDIA endpoint"]:::remote
+    end
+    IA -->|derived| VS
+    IA -->|async write| SQL
+    SQL -->|loadInteractions| IA
+    CS["ChatService (stateless)"] -->|appendToAnswer / setDone / setError| IA
+    RT["InteractionRuntime"] -->|invoke| CS
+    CS -->|chat_stream| LLM
+    UI["Interaction.svelte"] -->|reads| IA
+    UI -->|reads/writes| VS
+    classDef deep2 fill:#0a1628,stroke:#10b981,stroke-width:2,color:#fff
+    classDef view2 fill:#111418,stroke:#facc15,stroke-width:1,color:#e2e8f0
+    classDef persist fill:#111418,stroke:#7dd3fc,stroke-width:1,color:#e2e8f0
+    classDef remote fill:#111418,stroke:#8892a8,stroke-width:1,color:#8892a8
+        </div>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-3 text-sm">
+      <div class="card p-4">
+        <div class="text-green-500 font-semibold text-xs uppercase mb-1">Ownership Rules</div>
+        <ul class="text-muted space-y-0.5">
+          <li>&bull; InteractionRuntime OWNS <code>interactions[]</code>. Only it writes.</li>
+          <li>&bull; ChatService NEVER owns state. Pure functions.</li>
+          <li>&bull; ViewState is per-component UI chrome, NOT in domain.</li>
+          <li>&bull; DB is a PERSISTENCE COPY, not runtime source of truth.</li>
+          <li>&bull; No timers in components. Ever.</li>
+          <li>&bull; No <code>$state</code> in <code>ChatService</code>. Ever.</li>
+        </ul>
+      </div>
+      <div class="card p-4">
+        <div class="text-amber-400 font-semibold text-xs uppercase mb-1">What NOT to do</div>
+        <ul class="text-muted space-y-0.5">
+          <li>&bull; ChatService writing to DB directly</li>
+          <li>&bull; setTimeout in components</li>
+          <li>&bull; Two stores for the same data</li>
+          <li>&bull; Mutating store objects in-place</li>
+          <li>&bull; Passing UI booleans into IPC</li>
+          <li>&bull; ChatService calling Runtime back (circular)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: UX FLOW -->
+  <section id="s6" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-900/30 text-amber-400 font-bold text-sm">6</span>
+      <h2 class="text-2xl font-bold text-white">UX Flow &mdash; User's Journey</h2>
+    </div>
+
+    <div class="mermaid-card mb-5">
+      <div class="mermaid">
+flowchart TB
+    START([User opens app]) --> SESS{Has sessions?}
+    SESS -->|Yes| LOAD[Load last session]
+    SESS -->|No| CREATE[Create default session]
+    LOAD --> RENDER[Render message list]
+    CREATE --> RENDER
+    RENDER --> CHAT[Chat view]
+    CHAT --> TYPE[Types prompt]
+    TYPE --> SEND[Hits send]
+    SEND --> STREAM[Streaming response]
+    STREAM -->|tokens| SCROLL[Auto-scroll]
+    STREAM --> DONE[Response complete]
+    DONE --> READ[User reads / continues]
+    READ --> CHAT
+    READ --> SET([Settings])
+    SET --> CONFIG[Change model]
+    CONFIG --> CHAT
+    style STREAM fill:#0a1628,stroke:#10b981,stroke-width:2,color:#fff
+    style DONE fill:#0a1628,stroke:#10b981,stroke-width:2,color:#fff
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-3">Interaction state machine</div>
+        <div class="mermaid-card">
+          <div class="mermaid">
+stateDiagram-v2
+    [*] --> Pending: User hits send
+    Pending --> Streaming: First token
+    Streaming --> ToolExecuting: Tool calls emitted
+    ToolExecuting --> Streaming: Follow-up response
+    Streaming --> Done: onDone
+    Streaming --> Error: onError / timeout
+    ToolExecuting --> Error: Tool cycle failed
+    note right of ToolExecuting
+        Tool results injected
+        Follow-up LLM request sent
+    end note
+          </div>
+        </div>
+      </div>
+      <div class="card p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-blue-400 mb-3">Timing</div>
+        <div class="mermaid-card">
+          <div class="mermaid">
+gantt
+    title Single message lifecycle
+    dateFormat YYYY-MM-DD
+    axisFormat %M:%S
+    section User
+    Type prompt           :a1, 2024-01-01 00:00, 5s
+    Read response         :a2, after a1, 20s
+    section Frontend
+    Pending               :b1, 2024-01-01 00:00, 1s
+    Streaming             :b2, after b1, 15s
+    ToolExecuting         :crit, b3, after b2, 5s
+    Streaming (follow-up) :b4, after b3, 10s
+    Done                  :b5, after b4, 30s
+    section Backend
+    Build request         :c1, 2024-01-01 00:00, 0.5s
+    LLM streaming         :c2, after c1, 15s
+    Tool cycle            :crit, c3, after c2, 5s
+    LLM follow-up         :c4, after c3, 10s
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: MODULE SPEC -->
+  <section id="s7" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-900/30 text-green-500 font-bold text-sm">7</span>
+      <h2 class="text-2xl font-bold text-white">Module-by-Module Spec</h2>
+    </div>
+
+    <div class="space-y-5 stagger">
+
+      <!-- 7.1 AppConfig -->
+      <div class="card card-hover p-5 gradient-border">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.1</span>
+            <h3 class="text-xl font-bold text-white">AppConfig</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src-tauri/src/config.rs</code></p>
+          </div>
+          <span class="badge badge-green">LOADED ONCE</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Loaded once at startup from a JSON file (AOTU's <code class="mono">models.json</code> style). Everything reads from it. No hardcoded values, no duplicate thresholds, no env-var caching in modules.</p>
+        <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800 mb-3">
+#[derive(Deserialize, Serialize)]<br>
+pub struct AppConfig {<br>
+&nbsp;&nbsp;pub models: Vec&lt;ModelConfig&gt;,<br>
+&nbsp;&nbsp;pub api_keys: HashMap&lt;String, String&gt;,<br>
+&nbsp;&nbsp;pub default_provider: String,<br>
+&nbsp;&nbsp;pub default_model: String,<br>
+&nbsp;&nbsp;pub stream_timeout_secs: u64,<br>
+}<br><br>
+pub struct ModelConfig {<br>
+&nbsp;&nbsp;pub name: String,<br>
+&nbsp;&nbsp;pub provider: String,<br>
+&nbsp;&nbsp;pub alias: String,<br>
+&nbsp;&nbsp;pub temperature: f64,<br>
+&nbsp;&nbsp;pub max_tokens: usize,<br>
+&nbsp;&nbsp;// per-provider extras: kwargs, body_extra, reasoning_budget<br>
+}
+        </div>
+        <div class="grid sm:grid-cols-2 gap-2 text-sm text-muted">
+          <div><span class="text-green-500">&check;</span> Single source of truth for all models</div>
+          <div><span class="text-green-500">&check;</span> Loaded once, borrowed everywhere</div>
+          <div><span class="text-amber-500">&check;</span> API keys never logged</div>
+          <div><span class="text-green-500">&check;</span> JSON format, directly from AOTU data</div>
+        </div>
+      </div>
+
+      <!-- 7.2 Provider -->
+      <div class="card card-hover p-5">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.2</span>
+            <h3 class="text-xl font-bold text-white">Provider</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src-tauri/src/provider.rs</code></p>
+          </div>
+          <span class="badge badge-blue">ADAPTER SEAM</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Four providers from v1 via <code class="mono">ProviderAdapter</code> trait. The engine calls <code class="mono">adapter.build_request()</code> and <code class="mono">adapter.parse_response()</code> &mdash; never touches provider-specific formats. Adding a provider = one file, one enum variant.</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800">
+#[derive(Deserialize, Clone)]<br>
+pub enum Provider {<br>
+&nbsp;&nbsp;Nvidia,<br>
+&nbsp;&nbsp;OpenRouter,<br>
+&nbsp;&nbsp;Zen,<br>
+&nbsp;&nbsp;Go,<br>
+}<br><br>
+pub trait ProviderAdapter {<br>
+&nbsp;&nbsp;fn endpoint(&self, model: &str) -> String;<br>
+&nbsp;&nbsp;fn build_body(&self, params: &ChatParams) -> Value;<br>
+&nbsp;&nbsp;fn parse_response(&self, body: &Value) -> Result&lt;Answer&gt;;<br>
+}
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-1">Rules</div>
+            <ul class="text-muted space-y-1 text-sm">
+              <li>&bull; <code>api_key()</code> reads from AppConfig, not env var</li>
+              <li>&bull; <code>resolve_model(name) -> ModelConfig</code></li>
+              <li>&bull; Per-provider extras via ModelConfig (kwargs, body_extra, rb)</li>
+              <li>&bull; Engine never imports provider-specific types</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.3 Chat Engine -->
+      <div class="card card-hover p-5">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.3</span>
+            <h3 class="text-xl font-bold text-white">Chat Engine</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src-tauri/src/chat_engine.rs</code></p>
+          </div>
+          <span class="badge badge-green">SINGLE LOOP</span>
+        </div>
+        <p class="text-sm text-muted mb-4">The <code class="mono">select!</code> loop. Owns the SSE stream, parses events, sends ChatEvent variants through the Channel. When tool_calls are detected in the stream, hands off to <code class="mono">ToolOrchestrator</code> for inline execution, then resumes streaming the follow-up LLM response.</p>
+        <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800 mb-3">
+pub async fn run_stream(<br>
+&nbsp;&nbsp;response: Response,<br>
+&nbsp;&nbsp;channel: &Channel&lt;ChatEvent&gt;,<br>
+&nbsp;&nbsp;cancel: CancellationToken,<br>
+&nbsp;&nbsp;orchestrator: &ToolOrchestrator,<br>
+&nbsp;&nbsp;bundle: &mut RequestBundle,<br>
+) -> Result&lt;StreamResult&gt; {<br>
+&nbsp;&nbsp;// select! between:<br>
+&nbsp;&nbsp;// - channel.recv() - parse SSE -> emit ChatEvent<br>
+&nbsp;&nbsp;// - cancel.cancelled() - return StreamResult::Cancelled<br>
+&nbsp;&nbsp;// - 120s timeout - return StreamResult::Timeout<br>
+&nbsp;&nbsp;// On tool_calls: orchestrator.run_cycle(bundle, on_event)<br>
+}
+        </div>
+        <div class="text-sm text-muted">
+          <span class="text-green-500">&check;</span> 120s timeout &middot;
+          <span class="text-green-500">&check;</span> CancellationToken support &middot;
+          <span class="text-green-500">&check;</span> Inline tool orchestration &middot;
+          <span class="text-green-500">&check;</span> Testable with <code>Vec&lt;Bytes&gt;</code> fake stream
+        </div>
+      </div>
+
+      <!-- 7.4 ToolOrchestrator -->
+      <div class="card card-hover p-5 gradient-border">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.4</span>
+            <h3 class="text-xl font-bold text-white">ToolOrchestrator</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src-tauri/src/tool_orchestrator.rs</code></p>
+          </div>
+          <span class="badge badge-green">IN V1</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Single tool-execution loop called inline by the streaming engine. Runs tool calls, injects results into bundle.messages, sends follow-up request. Includes CycleDetector for infinite-loop prevention.</p>
+        <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800 mb-3">
+pub struct ToolOrchestrator;<br><br>
+impl ToolOrchestrator {<br>
+&nbsp;&nbsp;pub fn run_cycle(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bundle: &mut RequestBundle,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;registry: &ToolRegistry,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;on_event: Option&lt;&amp;Channel&lt;ChatEvent&gt;&gt;,<br>
+&nbsp;&nbsp;) -> CycleResult<br>
+}<br><br>
+enum CycleResult {<br>
+&nbsp;&nbsp;Continue, Done, MaxTurnsReached, CycleDetected<br>
+}
+        </div>
+        <div class="grid sm:grid-cols-2 gap-2 text-sm text-muted">
+          <div><span class="text-green-500">&check;</span> Single max-turns policy</div>
+          <div><span class="text-green-500">&check;</span> CycleDetector (3 same calls → warning)</div>
+          <div><span class="text-green-500">&check;</span> Bundle is MUTABLE — results injected</div>
+          <div><span class="text-green-500">&check;</span> Events emitted for UI via Channel</div>
+        </div>
+      </div>
+
+      <!-- 7.5 DB Layer -->
+      <div class="card card-hover p-5">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.5</span>
+            <h3 class="text-xl font-bold text-white">DB Layer</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src-tauri/src/db/</code></p>
+          </div>
+          <span class="badge badge-blue">TRAIT</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Trait-based. Prod = SQLite. Tests = InMemory (HashMap). All persistence through this seam.</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800">
+pub trait MessageDb: Send + Sync {<br>
+&nbsp;&nbsp;async fn insert_message(&self, msg: NewMessage) -> Result&lt;i64&gt;;<br>
+&nbsp;&nbsp;async fn get_messages(&self, session_id: &str) -> Result&lt;Vec&lt;MessageRow&gt;&gt;;<br>
+&nbsp;&nbsp;async fn delete_message(&self, id: i64) -> Result&lt;()&gt;;<br>
+}
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1">NOT here (yet)</div>
+            <ul class="text-muted space-y-1 text-sm">
+              <li>&cross; No enrichment columns</li>
+              <li>&cross; No vector columns</li>
+              <li>&cross; No tool_calls column</li>
+              <li>&cross; No reasonig column</li>
+              <li>Add columns when features land</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7.6 ChatService -->
+      <div class="card card-hover p-5">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.6</span>
+            <h3 class="text-xl font-bold text-white">ChatService</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src/services/chatService.ts</code></p>
+          </div>
+          <span class="badge badge-blue">STATELESS</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Three exported functions. NOT a class. Opens Tauri channels, forwards events to Runtime. NO state. NO DB writes. NO timers.</p>
+        <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800 mb-3">
+export async function sendStream(<br>
+&nbsp;&nbsp;runtime: InteractionRuntime,<br>
+&nbsp;&nbsp;params: ChatParams<br>
+): Promise&lt;void&gt;<br><br>
+export async function sendBatch(<br>
+&nbsp;&nbsp;runtime: InteractionRuntime,<br>
+&nbsp;&nbsp;params: ChatParams<br>
+): Promise&lt;void&gt;<br><br>
+export async function cancel(<br>
+&nbsp;&nbsp;requestId: string<br>
+): Promise&lt;void&gt;
+        </div>
+        <div class="text-sm text-muted">
+          <span class="text-green-500">&check;</span> Timeout catch: ALSO calls <code>invoke('cancel_request')</code>
+          <br><span class="text-green-500">&check;</span> <code>onDone</code> checks <code>if (msg.status === 'error') return</code>
+        </div>
+      </div>
+
+      <!-- 7.7 InteractionRuntime -->
+      <div class="card card-hover p-5 gradient-border">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <span class="text-xs font-mono text-muted mb-1 block">7.7</span>
+            <h3 class="text-xl font-bold text-white">InteractionRuntime</h3>
+            <p class="text-sm text-muted"><code class="mono text-accent">src/lib/interactionRuntime.ts</code></p>
+          </div>
+          <span class="badge badge-green">SINGLE OWNER</span>
+        </div>
+        <p class="text-sm text-muted mb-4">Single owner of all interaction state. No other module holds a <code>$state</code> array of interactions. Every state change goes through this class.</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-deep rounded-lg p-3 text-xs font-mono text-muted border border-slate-800">
+class InteractionRuntime {<br>
+&nbsp;&nbsp;interactions: $state&lt;Interaction[]&gt;<br>
+&nbsp;&nbsp;activeId: $state&lt;string|null&gt;<br>
+&nbsp;&nbsp;error: $state&lt;ChatError|null&gt;<br><br>
+&nbsp;&nbsp;async start(prompt, route): void<br>
+&nbsp;&nbsp;async cancel(id): void<br>
+&nbsp;&nbsp;appendToAnswer(id, text): void<br>
+&nbsp;&nbsp;setToolCalls(id, calls): void<br>
+&nbsp;&nbsp;setDone(id): void<br>
+&nbsp;&nbsp;setError(id, msg): void<br>
+&nbsp;&nbsp;async load(sessionId): void<br>
+}
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-1">Rules</div>
+            <ul class="text-muted space-y-1 text-sm">
+              <li>&bull; <code>interactions</code> is the ONLY <code>$state</code> array</li>
+              <li>&bull; <code>start()</code> is ASYNC &mdash; creates immediately (pending)</li>
+              <li>&bull; <code>setToolCalls()</code> &rarr; status = ToolExecuting</li>
+              <li>&bull; <code>setDone()</code> &rarr; persist to DB async</li>
+              <li>&bull; <code>setError()</code> &rarr; persist error, no summary</li>
+              <li>&bull; All DB writes go through <code>DatabaseService</code></li>
+              <li>&bull; No enrichment, no auto-collapse in v1</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: APPENDIX -->
+  <section id="s8" class="section-link fade-in mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-900/30 text-amber-400 font-bold text-sm">8</span>
+      <h2 class="text-2xl font-bold text-white">Appendix — Research Map</h2>
+    </div>
+
+    <div class="card gradient-border p-6 mb-5">
+      <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-3">How each source informed AOTUS</div>
+      <table class="text-sm text-muted w-full">
+        <tr>
+          <td class="py-1 pr-2 font-bold text-white align-top w-48">0001 — Four Patterns</td>
+          <td>Mailbox+Kanban, Engine+Config, Terminal+Socket, Streaming Loop. <strong>Taken:</strong> Engine+Config (fat Rust core, thin config) + Streaming Loop (chat UX) + inline tool execution. <strong>Deferred:</strong> Mailbox+Kanban (multi-agent), Terminal+Socket (agent self-arch)</td>
+        </tr>
+        <tr>
+          <td class="py-1 pr-2 font-bold text-white align-top">0002 — Terminal Processes</td>
+          <td>PTY architecture, reader thread vs grid model, process group lifecycle. <strong>Taken:</strong> CancellationToken + timeout pattern. <strong>Deferred:</strong> Full PTY control (phase 7+ for agent terminal streaming)</td>
+        </tr>
+        <tr>
+          <td class="py-1 pr-2 font-bold text-white align-top">0003 — File vs DB</td>
+          <td>FLOWORK V8 (file-based, running) vs V2 (DB, proposed). <strong>Taken:</strong> Start file-simple, add DB when needed. .tmp+rename atomicity. Pipeline vs Workflow distinction.</td>
+        </tr>
+        <tr>
+          <td class="py-1 pr-2 font-bold text-white align-top">0004 — Desktop Architectures</td>
+          <td>Sidecar (Electron), Local Server (Go), Full-Stack Web (t3). <strong>Taken:</strong> Tauri in-process model proven correct. Mindwalk's adapter interface. Zustand-level state simplicity.</td>
+        </tr>
+        <tr>
+          <td class="py-1 pr-2 font-bold text-white align-top">AOTU archspecV3</td>
+          <td>53 bug items, 3 deleted files, InteractionRuntime, ViewState, ChatService stateless, DB trait. <strong>Taken:</strong> All the refactor wins, built in from day one.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4 text-sm">
+      <div class="card p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-green-500 mb-2">Files in AOTUS</div>
+        <ul class="text-muted space-y-0.5">
+          <li>&bull; <code>src/App.svelte</code> — shell</li>
+          <li>&bull; <code>src/lib/interactionRuntime.ts</code> — state owner</li>
+          <li>&bull; <code>src/services/chatService.ts</code> — IPC bridge</li>
+          <li>&bull; <code>src/components/*.svelte</code> — UI</li>
+          <li>&bull; <code>src-tauri/src/config.rs</code> — AppConfig</li>
+          <li>&bull; <code>src-tauri/src/provider.rs</code> — ProviderAdapter trait + 4 impls</li>
+          <li>&bull; <code>src-tauri/src/tool_orchestrator.rs</code> — tool cycle loop</li>
+          <li>&bull; <code>src-tauri/src/chat_engine.rs</code> — SSE loop + tool orchestration</li>
+          <li>&bull; <code>src-tauri/src/db/message_db.rs</code> — persistence</li>
+          <li>&bull; <code>src-tauri/src/commands.rs</code> — Tauri wiring</li>
+        </ul>
+      </div>
+      <div class="card p-4">
+        <div class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-2">NOT in AOTUS (yet)</div>
+        <ul class="text-muted space-y-0.5">
+          <li>&bull; <code>embedding.rs</code> — no vector memory</li>
+          <li>&bull; <code>memory_db.rs</code> — no memory DB</li>
+          <li>&bull; <code>chat_store.rs</code> — no enrichment</li>
+          <li>&bull; <code>context_selector.rs</code> — no smart context</li>
+          <li>&bull; <code>builtins.rs</code>, <code>artifact_store.rs</code> — no tool workspace</li>
+          <li>&bull; <code>reasoning.rs</code> — inline in engine</li>
+          <li>&bull; <code>message_builder.rs</code> — inline in request</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+    <div class="text-center text-xs text-muted mt-4">
+      AOTUS Architectural Specification v4 &middot; Synthesised from 5 research documents &middot; Ship the lazy version. Earn the complexity.
+    </div>
+  </section>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: '12px',
+    primaryColor: '#0a1628',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#2a4a3a',
+    lineColor: '#3a5a4a',
+    secondaryColor: '#111418',
+    tertiaryColor: '#0d1117',
+    clusterBkg: 'transparent',
+    clusterBorder: '#1e2329',
+    nodeBorder: '#2a3a4a',
+    nodeTextColor: '#e2e8f0',
+    edgeLabelBackground: '#111418',
+    signalColor: '#10b981',
+  },
+  flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+  sequence: { useMaxWidth: true, showSequenceNumbers: false },
+});
+
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc-item[data-section]');
+const backToTop = document.getElementById('back-to-top');
+
+function updateActiveSection() {
+  let current = '';
+  for (const section of sections) {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 120) current = section.id;
+  }
+  tocLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.section === current);
+  });
+  backToTop.classList.toggle('visible', window.scrollY > 400);
+}
+
+window.addEventListener('scroll', updateActiveSection, { passive: true });
+updateActiveSection();
+</script>
+</body>
+</html>

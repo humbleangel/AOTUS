@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="6.4540002822875975 6.4869993209838865 35.090250396728514 35.02599945068359" enable-background="new 0 0 48 48">
+<g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M25.429,41.063H7.927c-0.565,0-1.023-0.458-1.023-1.023v-1.659c0-0.565,0.458-1.023,1.023-1.023h17.502   c0.565,0,1.023,0.458,1.023,1.023v1.659C26.452,40.606,25.994,41.063,25.429,41.063z"/>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M22.387,37.359H10.969c-0.462,0-0.837-0.375-0.837-0.837v-2.031c0-0.462,0.375-0.837,0.837-0.837h11.419   c0.462,0,0.837,0.375,0.837,0.837v2.031C23.224,36.984,22.85,37.359,22.387,37.359z"/>
+</g>
+<g>
+	<g>
+		
+			<rect x="17.868" y="11.968" transform="matrix(0.7071 0.7071 -0.7071 0.7071 19.6096 -10.9065)" fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="10.204" height="12.5"/>
+		
+			<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M37.43,35.731L25.051,23.352l3.053-3.053l12.379,12.379c0.815,0.815,0.815,2.138,0,2.953l-0.1,0.1    C39.568,36.547,38.246,36.547,37.43,35.731z"/>
+		
+			<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M31.23,17.639l-7.681-7.681c-0.536-0.536-0.536-1.404,0-1.94l0.679-0.679c0.536-0.536,1.404-0.536,1.94,0l7.681,7.681    c0.536,0.536,0.536,1.404,0,1.94l-0.679,0.679C32.634,18.174,31.766,18.174,31.23,17.639z"/>
+		
+			<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="    M19.772,29.097l-7.681-7.681c-0.536-0.536-0.536-1.404,0-1.94l0.679-0.679c0.536-0.536,1.404-0.536,1.94,0l7.681,7.681    c0.536,0.536,0.536,1.404,0,1.94l-0.679,0.679C21.176,29.633,20.307,29.633,19.772,29.097z"/>
+	</g>
+</g>
+</svg>

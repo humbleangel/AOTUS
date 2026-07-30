@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="16.324999618530274 16.327999877929688 31.348999404907225 31.344999694824217" enable-background="new 0 0 64 64">
+<g>
+	<g>
+	</g>
+	
+		<polyline fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="   43.025,43.723 23.775,31.477 43.025,20.977  "/>
+</g>
+<g>
+	
+		<circle fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="23.775" cy="31.522" r="7"/>
+</g>
+<g>
+	
+		<circle fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="43.025" cy="20.977" r="4.199"/>
+	
+		<circle fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="43.025" cy="43.723" r="3.5"/>
+</g>
+</svg>

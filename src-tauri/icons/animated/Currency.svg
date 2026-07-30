@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="12.3 15.122999954223634 39.4 33.75399627685547" enable-background="new 0 0 64 64">
+<g>
+	<g>
+	</g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M46.63,42.761H28.364c-2.551,0-4.62-2.068-4.62-4.62V27.516c0-2.551,2.068-4.62,4.62-4.62H46.63c2.551,0,4.62,2.068,4.62,4.62   v10.626C51.25,40.693,49.182,42.761,46.63,42.761z"/>
+</g>
+<g>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M40.518,48.427H22.252c-2.551,0-4.62-2.068-4.62-4.62V33.181c0-2.551,2.068-4.62,4.62-4.62h18.266c2.551,0,4.62,2.068,4.62,4.62   v10.626C45.138,46.359,43.069,48.427,40.518,48.427z"/>
+	
+		<circle fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="31.385" cy="38.494" r="5.73"/>
+</g>
+<g>
+	<g>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="21.919" y1="20.157" x2="21.919" y2="15.573"/>
+		
+			<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    18.862,18.629 21.919,15.573 24.975,18.629   "/>
+	</g>
+	<g>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="15.806" y1="21.685" x2="15.806" y2="26.27"/>
+		
+			<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    18.862,23.213 15.806,26.27 12.75,23.213   "/>
+	</g>
+</g>
+</svg>

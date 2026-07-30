@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="17.55 17.55 28.9 28.9" enable-background="new 0 0 64 64">
+<g>
+	
+		<line fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="18" y1="21.5" x2="46" y2="21.5"/>
+	
+		<line fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="18" y1="32" x2="46" y2="32"/>
+	
+		<line fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="18" y1="42.5" x2="46" y2="42.5"/>
+</g>
+<g>
+	<g>
+	</g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M37.25,28.5h3.5c0.966,0,1.75,0.784,1.75,1.75v3.5c0,0.966-0.784,1.75-1.75,1.75h-3.5c-0.966,0-1.75-0.784-1.75-1.75v-3.5   C35.5,29.284,36.284,28.5,37.25,28.5z"/>
+</g>
+<g>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M23.25,18h3.5c0.966,0,1.75,0.784,1.75,1.75v3.5c0,0.966-0.784,1.75-1.75,1.75h-3.5c-0.966,0-1.75-0.784-1.75-1.75v-3.5   C21.5,18.784,22.284,18,23.25,18z"/>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M30.25,39h3.5c0.966,0,1.75,0.784,1.75,1.75v3.5c0,0.966-0.784,1.75-1.75,1.75h-3.5c-0.966,0-1.75-0.784-1.75-1.75v-3.5   C28.5,39.784,29.284,39,30.25,39z"/>
+</g>
+</svg>

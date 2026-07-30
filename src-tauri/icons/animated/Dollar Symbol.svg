@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="6.480980682373047 6.480980682373047 35.038038635253905 35.038038635253905" enable-background="new 0 0 48 48">
+<g>
+	
+		<circle fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="24" cy="24" r="17.06902"/>
+	<path fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M19.19003,28.51949c0,2.49549,2.1535,4.51849,4.80997,4.51849s4.80997-2.02299,4.80997-4.51849S27.36411,24.001,24,24.001   c-2.70936,0-4.80997-2.023-4.80997-4.51849S21.34352,14.96403,24,14.96403s4.80997,2.02299,4.80997,4.51849"/>
+	
+		<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="24" y1="34.511" x2="24" y2="13.5"/>
+</g>
+<g>
+	<path fill="none" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M10.5,24c0-7.45584,6.04416-13.5,13.5-13.5S37.5,16.54416,37.5,24S31.45584,37.5,24,37.5S10.5,31.45584,10.5,24"/>
+</g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="7.13023738861084 6.591059970855713 33.73951187133789 34.81788101196289" enable-background="new 0 0 48 48">
+<g>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M36.41169,15.40006H16.56125c-2.21359,0-4.00806-1.79447-4.00806-4.00806v-0.34288c0-2.21359,1.79447-4.00806,4.00806-4.00806   h19.85044c2.21359,0,4.00806,1.79447,4.00806,4.00806V11.392C40.41976,13.60559,38.62529,15.40006,36.41169,15.40006z"/>
+	
+		<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="16.95199" y1="11.22056" x2="36.02096" y2="11.22056"/>
+</g>
+<g>
+	
+		<path fill="#FFFFFF" stroke="#000000" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M32.49451,30.02832H20.47844c-1.22627,0-2.22036-0.99409-2.22036-2.22036v-16.5874h16.45679v16.5874   C34.71487,29.03423,33.72078,30.02832,32.49451,30.02832z"/>
+</g>
+<g>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M16.36848,36.99719l3.6083-2.86364c0,0,2.09445-1.29713,2.61689-2.1461s1.95914-4.83255,1.4367-6.07334   c-0.52244-1.24079-2.02445-0.71835-2.61219,0c-0.58774,0.71835-1.48125,2.63972-2.25959,2.8558   c-0.90052,0.25-0.90052-0.96196-0.90052-0.96196v-7.22003c0,0-3.48494,3.39272-3.94207,4.30699   c-0.45713,0.91427-0.4077,2.59155-0.93013,3.89764c-0.52244,1.3061-2.18716,3.06417-2.18716,3.06417L16.36848,36.99719z"/>
+	
+		<path fill="#FFFFFF" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="   M12.58147,40.31779l-4.36008-4.36008c-0.85487-0.85487-0.85487-2.24088,0-3.09575l0.4434-0.4434   c0.85487-0.85487,2.24088-0.85487,3.09575,0l4.36008,4.36008c0.85487,0.85487,0.85487,2.24088,0,3.09575l-0.4434,0.4434   C14.82236,41.17266,13.43634,41.17266,12.58147,40.31779z"/>
+</g>
+<g>
+	<g>
+		
+			<polyline fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    24.65477,19.82952 26.48647,21.56221 28.31818,19.82952   "/>
+		
+			<line fill="none" stroke="#FFF063FF" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="26.48647" y1="17.23914" x2="26.48647" y2="21.56221"/>
+	</g>
+</g>
+</svg>
