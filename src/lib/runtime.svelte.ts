@@ -30,6 +30,12 @@ export class InteractionRuntime {
     return id
   }
 
+  reset(): void {
+    this.interactions = []
+    this.activeId = null
+    this.error = null
+  }
+
   cancel(): void {
     const current = this.current
     if (current) current.status = 'done'
