@@ -44,6 +44,13 @@ impl ToolRegistry {
 
 use crate::provider::ToolCallDelta;
 
+pub enum CycleResult {
+    Continue,
+    Done,
+    MaxTurnsReached,
+    CycleDetected,
+}
+
 pub struct CycleDetector {
     history: VecDeque<(String, String)>,
     max_len: usize,
@@ -88,13 +95,16 @@ impl ToolOrchestrator {
 
     pub async fn run_cycle(
         &self,
+        bundle: &mut crate::request::RequestBundle,
         tool_calls: &[ToolCallDelta],
-    ) -> Result<Vec<ToolResult>, crate::ChatError> {
+        on_event: Option<&tokio::sync::mpsc::Sender<crate::chat_engine::ChatEvent>>,
+    ) -> CycleResult {
         let mut results = vec![];
         for tc in tool_calls {
-            let name = tc.function.as_ref()
-                .and_then(|f| f.name.as_deref())
-                .ok_or_else(|| crate::ChatError::Tool("missing function name".into()))?;
+            let name = match tc.function.as_ref().and_then(|f| f.name.as_deref()) {
+                Some(n) => n,
+                None => return CycleResult::Done,
+            };
 
             let args_str = tc.function.as_ref()
                 .and_then(|f| f.arguments.as_deref())
@@ -104,41 +114,45 @@ impl ToolOrchestrator {
                 let mut cd = self.cycle_detector.lock().unwrap();
                 cd.record(name, args_str);
                 if cd.is_cycle() {
-                    return Err(crate::ChatError::Tool(
-                        format!("cycle detected: tool '{}' called 3 times in a row with same args", name)
-                    ));
+                    return CycleResult::CycleDetected;
                 }
             }
 
-            let args: serde_json::Value = serde_json::from_str(args_str)
-                .map_err(|e| crate::ChatError::Parse(e.to_string()))?;
+            let args: serde_json::Value = match serde_json::from_str(args_str) {
+                Ok(v) => v,
+                Err(_) => return CycleResult::Done,
+            };
 
-            let tool = self.registry.get(name)
-                .ok_or_else(|| crate::ChatError::Tool(format!("unknown tool: {}", name)))?;
+            let tool = match self.registry.get(name) {
+                Some(t) => t,
+                None => return CycleResult::Done,
+            };
 
-            let output = tool.execute(args)?;
+            let output = match tool.execute(args) {
+                Ok(o) => o,
+                Err(_) => return CycleResult::Done,
+            };
 
-            results.push(ToolResult {
+            let result = ToolResult {
                 tool_call_id: tc.id.clone().unwrap_or_default(),
                 content: output,
-            });
-        }
-        Ok(results)
-    }
+            };
 
-    pub fn inject_tool_results(
-        &self,
-        results: &[ToolResult],
-        messages: &mut Vec<crate::provider::ChatMessage>,
-    ) {
-        for r in results {
-            messages.push(crate::provider::ChatMessage {
-                role: "tool".into(),
-                content: r.content.clone(),
-                tool_calls: None,
-                tool_call_id: Some(r.tool_call_id.clone()),
-            });
+            if let Some(tx) = on_event {
+                let _ = tx.send(crate::chat_engine::ChatEvent::ToolResult {
+                    call_id: result.tool_call_id.clone(),
+                    output: result.content.clone(),
+                }).await;
+            }
+
+            results.push(result);
         }
+
+        for r in &results {
+            bundle.push_tool(&r.tool_call_id, &r.content);
+        }
+
+        CycleResult::Continue
     }
 }
 
@@ -223,19 +237,13 @@ mod tests {
     }
 
     #[test]
-    fn test_inject_tool_results() {
-        let registry = ToolRegistry::new();
-        registry.register(Arc::new(EchoTool));
-        let orch = ToolOrchestrator::new(registry);
-        let results = vec![ToolResult {
+    fn test_tool_result_struct() {
+        let result = super::ToolResult {
             tool_call_id: "call_1".into(),
             content: "result".into(),
-        }];
-        let mut msgs = vec![];
-        orch.inject_tool_results(&results, &mut msgs);
-        assert_eq!(msgs.len(), 1);
-        assert_eq!(msgs[0].role, "tool");
-        assert_eq!(msgs[0].tool_call_id.as_deref(), Some("call_1"));
+        };
+        assert_eq!(result.tool_call_id, "call_1");
+        assert_eq!(result.content, "result");
     }
 
     #[tokio::test]
@@ -243,6 +251,14 @@ mod tests {
         let registry = ToolRegistry::new();
         registry.register(Arc::new(EchoTool));
         let orch = ToolOrchestrator::new(registry);
+
+        let mut bundle = crate::request::RequestBundle::new(
+            crate::config::ModelConfig {
+                name: "test".into(), provider: "nvidia".into(),
+                alias: "Test".into(), temperature: 0.7, max_tokens: 4096,
+                kwargs: None, body_extra: None, reasoning_budget: None,
+            }
+        );
 
         let calls = vec![ToolCallDelta {
             id: Some("call_1".into()),
@@ -253,8 +269,10 @@ mod tests {
             }),
         }];
 
-        let results = orch.run_cycle(&calls).await.unwrap();
-        assert_eq!(results.len(), 1);
-        assert_eq!(results[0].content, "hello");
+        let cycle = orch.run_cycle(&mut bundle, &calls, None).await;
+        assert!(matches!(cycle, CycleResult::Continue));
+        assert_eq!(bundle.messages.len(), 1);
+        assert_eq!(bundle.messages[0].role, "tool");
+        assert_eq!(bundle.messages[0].content, "hello");
     }
 }

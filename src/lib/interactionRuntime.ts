@@ -1,4 +1,4 @@
-import type { Interaction, InteractionStatus, Message, ToolCallDelta, Usage } from './types'
+import type { Interaction, InteractionStatus, Message, ToolCallDelta } from './types'
 
 let nextId = 1
 function genId(): string {
@@ -30,12 +30,6 @@ export class InteractionRuntime {
     return id
   }
 
-  reset(): void {
-    this.interactions = []
-    this.activeId = null
-    this.error = null
-  }
-
   cancel(): void {
     const current = this.current
     if (current) current.status = 'done'
@@ -55,12 +49,6 @@ export class InteractionRuntime {
     }
   }
 
-  appendToReasoning(interactionId: string, text: string): void {
-    const interaction = this.interactions.find(i => i.id === interactionId)
-    if (!interaction) return
-    interaction.reasoning += text
-  }
-
   setToolCalls(interactionId: string, calls: ToolCallDelta[]): void {
     const interaction = this.interactions.find(i => i.id === interactionId)
     if (!interaction) return
@@ -68,19 +56,10 @@ export class InteractionRuntime {
     interaction.status = 'tool_executing'
   }
 
-  addToolResult(interactionId: string, callId: string, output: string): void {
+  setDone(interactionId: string): void {
     const interaction = this.interactions.find(i => i.id === interactionId)
-    if (!interaction) return
-    interaction.toolResults.push({ callId, output })
-  }
-
-  setDone(interactionId: string, usage?: Usage, ttftMs?: number, durationMs?: number): void {
-    const interaction = this.interactions.find(i => i.id === interactionId)
-    if (!interaction) return
+    if (!interaction || interaction.status === 'error') return
     interaction.status = 'done'
-    if (usage) interaction.usage = usage
-    if (ttftMs !== undefined) interaction.ttftMs = ttftMs
-    if (durationMs !== undefined) interaction.durationMs = durationMs
   }
 
   setError(interactionId: string, message: string): void {

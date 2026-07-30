@@ -21,32 +21,11 @@ pub struct StreamResult {
 }
 
 pub async fn run_stream(
-    url: String,
-    body: serde_json::Value,
-    api_key: String,
+    response: reqwest::Response,
     event_tx: mpsc::Sender<ChatEvent>,
     cancel: CancellationToken,
     timeout_secs: u64,
 ) -> Result<StreamResult, crate::ChatError> {
-    let client = reqwest::Client::new();
-    let response = client
-        .post(&url)
-        .header("Authorization", format!("Bearer {}", api_key))
-        .header("Accept", "text/event-stream")
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| crate::ChatError::Network(e.to_string()))?;
-
-    if !response.status().is_success() {
-        let status = response.status().as_u16();
-        let text = response.text().await.unwrap_or_default();
-        return if status == 401 || status == 403 {
-            Err(crate::ChatError::Auth(text))
-        } else {
-            Err(crate::ChatError::Network(format!("HTTP {}: {}", status, text)))
-        };
-    }
 
     let start = std::time::Instant::now();
     let mut ttft_ms: Option<u64> = None;

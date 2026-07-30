@@ -58,6 +58,13 @@ export interface ChatParams {
   modelName: string
 }
 
+export interface Answer {
+  content: string
+  model: string
+  usage?: Usage
+  reasoning_content?: string
+}
+
 export interface ModelInfo {
   name: string
   provider: string

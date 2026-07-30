@@ -1,6 +1,30 @@
 use crate::config::ModelConfig;
 use crate::provider::{ChatMessage, ChatParams, ProviderAdapter, ToolCallDelta};
 
+pub struct RequestBundle {
+    pub messages: Vec<ChatMessage>,
+    pub model_config: ModelConfig,
+    pub tool_defs: Vec<ToolDef>,
+}
+
+impl RequestBundle {
+    pub fn new(model_config: ModelConfig) -> Self {
+        Self { messages: vec![], model_config, tool_defs: vec![] }
+    }
+
+    pub fn push_user(&mut self, content: &str) {
+        self.messages.push(build_user_message(content));
+    }
+
+    pub fn push_assistant(&mut self, content: &str, tool_calls: Vec<ToolCallDelta>) {
+        self.messages.push(build_assistant_message(content, tool_calls));
+    }
+
+    pub fn push_tool(&mut self, tool_call_id: &str, content: &str) {
+        self.messages.push(build_tool_message(tool_call_id, content));
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct BuildRequestInput {
     pub model: String,

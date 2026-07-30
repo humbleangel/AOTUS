@@ -1,7 +1,7 @@
 <script lang="ts">
   import Interaction from './Interaction.svelte'
   import type { Interaction as InteractionType } from '$lib/types'
-  import { InteractionRuntime } from '$lib/runtime.svelte'
+  import { InteractionRuntime } from '$lib/interactionRuntime'
 
   let { interactions, runtime }: {
     interactions: InteractionType[]
