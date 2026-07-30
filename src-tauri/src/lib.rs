@@ -168,6 +168,15 @@ fn delete_session(
 }
 
 #[tauri::command]
+fn rename_session(
+    state: tauri::State<'_, AppState>,
+    id: String,
+    name: String,
+) -> Result<(), ChatError> {
+    state.db.as_ref().rename_session(&id, &name)
+}
+
+#[tauri::command]
 fn get_messages(
     state: tauri::State<'_, AppState>,
     session_id: String,
@@ -179,7 +188,7 @@ pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             chat_stream, cancel_request,
-            get_sessions, create_session, delete_session, get_messages,
+            get_sessions, create_session, delete_session, rename_session, get_messages,
         ])
         .setup(|app| {
             let config_path = std::env::var("AOTUS_CONFIG")

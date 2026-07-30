@@ -7,6 +7,7 @@ pub trait MessageDb: Send + Sync {
     fn get_sessions(&self) -> Result<Vec<SessionRow>, crate::ChatError>;
     fn create_session(&self, id: &str, name: &str) -> Result<SessionRow, crate::ChatError>;
     fn delete_session(&self, id: &str) -> Result<(), crate::ChatError>;
+    fn rename_session(&self, id: &str, name: &str) -> Result<(), crate::ChatError>;
 }
 
 pub struct NewMessage {
@@ -159,6 +160,13 @@ impl MessageDb for SqliteDb {
             .map_err(|e| crate::ChatError::Db(e.to_string()))?;
         Ok(())
     }
+
+    fn rename_session(&self, id: &str, name: &str) -> Result<(), crate::ChatError> {
+        let conn = self.conn.lock().map_err(|e| crate::ChatError::Db(e.to_string()))?;
+        conn.execute("UPDATE sessions SET name = ?1 WHERE id = ?2", rusqlite::params![name, id])
+            .map_err(|e| crate::ChatError::Db(e.to_string()))?;
+        Ok(())
+    }
 }
 
 pub struct InMemoryMessageDb {
@@ -232,6 +240,14 @@ impl MessageDb for InMemoryMessageDb {
         sessions.retain(|s| s.id != id);
         Ok(())
     }
+
+    fn rename_session(&self, id: &str, name: &str) -> Result<(), crate::ChatError> {
+        let mut sessions = self.sessions.lock().map_err(|e| crate::ChatError::Db(e.to_string()))?;
+        if let Some(s) = sessions.iter_mut().find(|s| s.id == id) {
+            s.name = name.to_string();
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -257,6 +273,9 @@ mod tests {
             Err(crate::ChatError::Db("not implemented".into()))
         }
         fn delete_session(&self, _id: &str) -> Result<(), crate::ChatError> {
+            Ok(())
+        }
+        fn rename_session(&self, _id: &str, _name: &str) -> Result<(), crate::ChatError> {
             Ok(())
         }
     }

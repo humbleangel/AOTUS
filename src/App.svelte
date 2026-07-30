@@ -15,6 +15,26 @@
     sessions = await getSessions()
   }
 
+  let initialLoad = $state(true)
+
+  $effect(() => {
+    if (initialLoad) {
+      loadSessions().then(() => {
+        const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('aotus_last_session') : null
+        if (saved && sessions.some(s => s.id === saved)) {
+          handleSelectSession(saved)
+        }
+        initialLoad = false
+      })
+    }
+  })
+
+  $effect(() => {
+    if (currentSessionId && !initialLoad && typeof localStorage !== 'undefined') {
+      localStorage.setItem('aotus_last_session', currentSessionId)
+    }
+  })
+
   async function handleNewSession() {
     const session = await createSession('New chat')
     sessions = [session, ...sessions]
@@ -25,6 +45,13 @@
   async function handleSelectSession(id: string) {
     currentSessionId = id
     loadHistory(id)
+  }
+
+  async function handleRenameSession(id: string, name: string) {
+    const { invoke } = await import('@tauri-apps/api/core')
+    await invoke('rename_session', { id, name })
+    const s = sessions.find(s => s.id === id)
+    if (s) s.name = name
   }
 
   async function handleDeleteSession(id: string) {
@@ -80,7 +107,6 @@
     runtime.cancel()
   }
 
-  $effect(() => { loadSessions() })
 </script>
 
 <div class="app-shell">
@@ -90,6 +116,7 @@
     onNewSession={handleNewSession}
     onSelectSession={handleSelectSession}
     onDeleteSession={handleDeleteSession}
+    onRenameSession={handleRenameSession}
   />
   <main class="main-content">
     <header class="header">
