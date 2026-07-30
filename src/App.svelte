@@ -3,13 +3,23 @@
   import ChatForm from './ChatForm.svelte'
   import ChatMessages from './ChatMessages.svelte'
   import { InteractionRuntime } from '$lib/runtime.svelte'
-  import { getSessions, createSession, deleteSession, sendStream, getMessages } from '$lib/chat-service'
-  import type { ChatEvent, Session } from '$lib/types'
+  import { getSessions, createSession, deleteSession, sendStream, getMessages, getModels } from '$lib/chat-service'
+  import type { ChatEvent, ModelInfo, Session } from '$lib/types'
 
   let runtime = $state(new InteractionRuntime())
   let sessions: Session[] = $state([])
+  let models: ModelInfo[] = $state([])
   let currentSessionId: string = $state('')
-  let model = $state('nvidia/llama-3.1-8b-instruct')
+  let model = $state(
+    typeof localStorage !== 'undefined'
+      ? localStorage.getItem('aotus_model') ?? 'nvidia/llama-3.1-8b-instruct'
+      : 'nvidia/llama-3.1-8b-instruct'
+  )
+
+  function handleModelChange(m: string) {
+    model = m
+    if (typeof localStorage !== 'undefined') localStorage.setItem('aotus_model', m)
+  }
 
   async function loadSessions() {
     sessions = await getSessions()
@@ -19,7 +29,7 @@
 
   $effect(() => {
     if (initialLoad) {
-      loadSessions().then(() => {
+      Promise.all([loadSessions(), getModels().then(m => models = m)]).then(() => {
         const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('aotus_last_session') : null
         if (saved && sessions.some(s => s.id === saved)) {
           handleSelectSession(saved)
@@ -124,9 +134,12 @@
     </header>
     <ChatMessages interactions={runtime.interactions} {runtime} />
     <ChatForm
+      {models}
+      selectedModel={model}
       onSend={handleSend}
       onCancel={handleCancel}
       disabled={runtime.activeId !== null}
+      onModelChange={handleModelChange}
     />
   </main>
 </div>

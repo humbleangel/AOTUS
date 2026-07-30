@@ -32,3 +32,7 @@ export async function deleteSession(id: string): Promise<void> {
 export async function getMessages(sessionId: string): Promise<import('./types').Message[]> {
   return invoke('get_messages', { sessionId })
 }
+
+export async function getModels(): Promise<import('./types').ModelInfo[]> {
+  return invoke('get_models')
+}

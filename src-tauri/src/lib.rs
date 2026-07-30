@@ -87,7 +87,6 @@ async fn chat_stream(
     let api_key = state.config.api_key(&model_config.provider)
         .ok_or_else(|| ChatError::Auth(format!("no key for provider: {}", model_config.provider)))?
         .clone();
-    let endpoint = adapter.endpoint(&model_config);
     let timeout = state.config.stream_timeout_secs;
 
     let mut messages = vec![];
@@ -103,15 +102,8 @@ async fn chat_stream(
     }
     messages.push(request::build_user_message(&message));
 
-    let input = request::BuildRequestInput {
-        model: model_name.clone(),
-        messages,
-        temperature: model_config.temperature,
-        max_tokens: model_config.max_tokens,
-        stream: true,
-        tool_defs: vec![],
-    };
-    let body = request::build_request(&input, &model_config, adapter.as_ref())?;
+    let api_key_clone = api_key.clone();
+    let model_config_clone = model_config.clone();
 
     let request_id = uuid::Uuid::new_v4().to_string();
     let cancel_token = tokio_util::sync::CancellationToken::new();
@@ -119,17 +111,110 @@ async fn chat_stream(
 
     let (event_tx, mut event_rx) = tokio::sync::mpsc::channel::<chat_engine::ChatEvent>(256);
 
-    tokio::spawn(async move {
+    let bridge = tokio::spawn(async move {
         while let Some(event) = event_rx.recv().await {
             let _ = channel.send(event);
         }
     });
 
-    tokio::spawn(async move {
-        let _ = chat_engine::run_stream(
-            endpoint, body, api_key, event_tx, cancel_token, timeout,
-        ).await;
+    let engine_handle = tokio::spawn(async move {
+        let mut current_messages = messages;
+        let mut full_answer = String::new();
+        let mut full_reasoning = String::new();
+        let mut final_usage = None;
+        let mut ttft: Option<u64> = None;
+        let orchestrator = tool_orchestrator::ToolOrchestrator::new(
+            tool_orchestrator::ToolRegistry::new()
+        );
+
+        loop {
+            let tool_defs = orchestrator.registry().tool_defs();
+            let input = request::BuildRequestInput {
+                model: model_name.clone(),
+                messages: current_messages.clone(),
+                temperature: model_config_clone.temperature,
+                max_tokens: model_config_clone.max_tokens,
+                stream: true,
+                tool_defs,
+            };
+            let body = match request::build_request(&input, &model_config_clone, &*adapter) {
+                Ok(b) => b,
+                Err(e) => {
+                    let _ = event_tx.send(chat_engine::ChatEvent::Error {
+                        message: e.to_string(),
+                    }).await;
+                    return;
+                }
+            };
+            let url = adapter.endpoint(&model_config_clone);
+
+            let result = chat_engine::run_stream(
+                url, body, api_key_clone.clone(),
+                event_tx.clone(), cancel_token.clone(), timeout,
+            ).await;
+
+            let stream_result = match result {
+                Ok(r) => r,
+                Err(e) => {
+                    let _ = event_tx.send(chat_engine::ChatEvent::Error {
+                        message: e.to_string(),
+                    }).await;
+                    return;
+                }
+            };
+
+            full_answer.push_str(&stream_result.answer.content);
+            full_reasoning.push_str(&stream_result.answer.reasoning_content);
+            if !stream_result.answer.model.is_empty() {
+                // model known
+            }
+            if stream_result.answer.usage.is_some() {
+                final_usage = stream_result.answer.usage;
+            }
+            if ttft.is_none() {
+                ttft = Some(stream_result.ttft_ms);
+            }
+
+            if stream_result.answer.tool_calls.is_empty() {
+                let _ = event_tx.send(chat_engine::ChatEvent::Done {
+                    answer: full_answer.clone(),
+                    duration_ms: stream_result.duration_ms,
+                    ttft_ms: ttft.unwrap_or(0),
+                }).await;
+                return;
+            }
+
+            let tool_calls = stream_result.answer.tool_calls.clone();
+            let _ = event_tx.send(chat_engine::ChatEvent::ToolCalls {
+                calls: tool_calls.clone(),
+            }).await;
+
+            match orchestrator.run_cycle(&tool_calls).await {
+                Ok(results) => {
+                    let assist_msg = request::build_assistant_message(
+                        &stream_result.answer.content, tool_calls,
+                    );
+                    current_messages.push(assist_msg);
+                    orchestrator.inject_tool_results(&results, &mut current_messages);
+                    for r in &results {
+                        let _ = event_tx.send(chat_engine::ChatEvent::ToolResult {
+                            call_id: r.tool_call_id.clone(),
+                            output: r.content.clone(),
+                        }).await;
+                    }
+                }
+                Err(e) => {
+                    let _ = event_tx.send(chat_engine::ChatEvent::Error {
+                        message: e.to_string(),
+                    }).await;
+                    return;
+                }
+            }
+        }
     });
+
+    let _ = bridge;
+    let _ = engine_handle;
 
     Ok(request_id)
 }
@@ -168,6 +253,11 @@ fn delete_session(
 }
 
 #[tauri::command]
+fn get_models(state: tauri::State<'_, AppState>) -> Result<Vec<crate::config::ModelConfig>, ChatError> {
+    Ok(state.config.models.clone())
+}
+
+#[tauri::command]
 fn rename_session(
     state: tauri::State<'_, AppState>,
     id: String,
@@ -187,7 +277,7 @@ fn get_messages(
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            chat_stream, cancel_request,
+            chat_stream, cancel_request, get_models,
             get_sessions, create_session, delete_session, rename_session, get_messages,
         ])
         .setup(|app| {
